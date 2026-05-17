@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>intercambi.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#1A1A2E;--green:#00F5A0;--coral:#FF6B6B;--white:#F7F7F2;
+  --gray:#6B7280;--border:#E5E7EB;--card-r:20px;--btn-r:12px;--pill-r:50px;
+  --shadow:0 4px 24px rgba(0,0,0,.10);
+}
+body{font-family:'DM Sans',sans-serif;background:#f0f0eb;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden}
+h1,h2,h3,.headline{font-family:'Poppins',sans-serif}
+
+/* PHONE FRAME */
+#app{width:390px;height:844px;background:var(--white);position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.3);border-radius:40px}
+
+/* TOP BAR */
+#topbar{background:var(--navy);padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10}
+#topbar .logo{font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;color:var(--green);letter-spacing:-0.5px}
+#topbar .logo span{color:var(--white)}
+.lang-toggle{font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;border:1px solid rgba(255,255,255,.2);padding:3px 8px;border-radius:20px}
+
+/* SCREENS */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column}
+.screen.active{display:flex}
+.screen::-webkit-scrollbar{display:none}
+
+/* BOTTOM NAV */
+#nav{background:var(--navy);display:flex;justify-content:space-around;padding:8px 0 20px;flex-shrink:0;z-index:10}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 12px;border-radius:12px;transition:all .2s}
+.nav-item svg{width:22px;height:22px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+.nav-item span{font-size:10px;color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;transition:color .2s}
+.nav-item.active svg{stroke:var(--green)}
+.nav-item.active span{color:var(--green)}
+.nav-item.publish-btn{background:var(--green);border-radius:14px;padding:6px 14px}
+.nav-item.publish-btn svg{stroke:var(--navy)}
+.nav-item.publish-btn span{color:var(--navy);font-weight:600}
+
+/* ===================== HOME ===================== */
+#home{background:#f0f0eb}
+
+.filter-bar{background:var(--navy);padding:0 16px 12px;flex-shrink:0}
+.filter-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.filter-tabs::-webkit-scrollbar{display:none}
+.filter-tab{white-space:nowrap;font-size:11px;padding:5px 12px;border-radius:var(--pill-r);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;flex-shrink:0}
+.filter-tab.active{background:var(--green);color:var(--navy);border-color:var(--green);font-weight:600}
+.distance-row{display:flex;gap:6px;margin-top:8px;align-items:center}
+.dist-label{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap}
+.dist-btns{display:flex;gap:4px}
+.dist-btn{font-size:10px;padding:3px 8px;border-radius:var(--pill-r);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s}
+.dist-btn.active{background:rgba(0,245,160,.15);border-color:var(--green);color:var(--green)}
+
+.card-area{flex:1;position:relative;padding:12px 16px 8px;display:flex;flex-direction:column}
+
+.card-counter{text-align:center;font-size:12px;color:var(--gray);margin-bottom:8px;font-family:'DM Sans',sans-serif}
+
+.stack-wrapper{flex:1;position:relative}
+
+/* Product Card */
+.p-card{position:absolute;inset:0;background:var(--white);border-radius:var(--card-r);box-shadow:0 8px 32px rgba(0,0,0,.12);display:flex;flex-direction:column;overflow:hidden;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s;cursor:pointer;user-select:none}
+.p-card.back{transform:scale(.96) translateY(8px);z-index:1}
+.p-card.front{z-index:2}
+.p-card.fly-left{transform:translateX(-140%) rotate(-18deg)!important;opacity:0}
+.p-card.fly-right{transform:translateX(140%) rotate(18deg)!important;opacity:0}
+.p-card.fly-down{transform:translateY(110%)!important;opacity:0}
+
+.card-img{width:100%;height:52%;position:relative;overflow:hidden;flex-shrink:0}
+.card-img .img-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px}
+.card-overlay-badge{position:absolute;top:12px;left:12px;background:var(--green);color:var(--navy);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--pill-r);font-family:'DM Sans',sans-serif}
+.like-overlay,.pass-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10}
+.like-overlay{background:rgba(0,245,160,.15)}
+.pass-overlay{background:rgba(255,107,107,.15)}
+.show-like .like-overlay{opacity:1}
+.show-pass .pass-overlay{opacity:1}
+
+.card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.card-name{font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--navy);line-height:1.2}
+.card-value{font-size:13px;color:var(--gray);font-weight:500}
+.card-location{font-size:12px;color:var(--gray);display:flex;align-items:center;gap:4px}
+.card-owner-row{display:flex;align-items:center;gap:8px;margin-top:2px}
+.owner-avatar{width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--green);font-weight:700;flex-shrink:0}
+.owner-name{font-size:12px;color:var(--navy);font-weight:600}
+.owner-rating{font-size:11px;color:var(--gray);margin-left:auto}
+.card-wishlist{font-size:11px;color:var(--gray)}
+.card-wishlist strong{color:var(--navy)}
+.wishlist-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.wtag{font-size:10px;padding:2px 8px;border-radius:var(--pill-r);background:#f0f0f0;color:var(--navy)}
+.ver-mas-btn{margin-top:auto;font-size:12px;color:var(--green);font-weight:600;text-align:center;padding:6px;border-top:1px solid var(--border)}
+
+/* AD CARD */
+.ad-card{background:#fffbf0;border:1.5px dashed #f0c070}
+.ad-label{position:absolute;top:10px;right:10px;font-size:9px;color:#aaa;background:rgba(255,255,255,.8);padding:2px 6px;border-radius:8px}
+.ad-img{font-size:48px}
+.ad-cta{display:inline-block;background:var(--navy);color:var(--white);font-size:12px;padding:6px 16px;border-radius:var(--btn-r);font-weight:600;margin-top:4px}
+
+/* SWIPE BUTTONS */
+.swipe-btns{display:flex;justify-content:center;align-items:center;gap:20px;padding:10px 0 4px;flex-shrink:0}
+.sw-btn{width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .15s,box-shadow .15s;box-shadow:var(--shadow)}
+.sw-btn:active{transform:scale(.9)}
+.sw-pass{background:#fff;color:var(--coral);box-shadow:0 4px 16px rgba(255,107,107,.25)}
+.sw-expand{background:#fff;color:var(--navy);font-size:18px}
+.sw-like{background:var(--green);color:var(--navy);box-shadow:0 4px 16px rgba(0,245,160,.35)}
+
+/* DETAIL OVERLAY */
+#detail-overlay{position:absolute;inset:0;background:var(--white);z-index:50;display:none;flex-direction:column;overflow-y:auto}
+#detail-overlay.show{display:flex}
+#detail-overlay::-webkit-scrollbar{display:none}
+.detail-close{padding:14px 16px;display:flex;align-items:center;gap:10px;background:var(--navy);cursor:pointer}
+.detail-close svg{stroke:var(--green);width:20px;height:20px;fill:none;stroke-width:2;stroke-linecap:round}
+.detail-close span{color:var(--white);font-size:14px;font-weight:600}
+.detail-hero{width:100%;height:220px;display:flex;align-items:center;justify-content:center;font-size:80px;background:#f0f0f0}
+.detail-content{padding:20px 16px;display:flex;flex-direction:column;gap:14px}
+.detail-name{font-family:'Poppins',sans-serif;font-weight:700;font-size:22px;color:var(--navy)}
+.detail-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.detail-value{font-size:15px;font-weight:600;color:var(--navy)}
+.detail-cat{font-size:11px;background:var(--green);color:var(--navy);padding:4px 12px;border-radius:var(--pill-r);font-weight:700}
+.detail-loc{font-size:13px;color:var(--gray);display:flex;align-items:center;gap:4px}
+.detail-desc{font-size:14px;color:#444;line-height:1.65}
+.detail-section-label{font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:var(--navy)}
+.detail-wishlist-tags{display:flex;flex-wrap:wrap;gap:6px}
+.detail-wtag{font-size:12px;padding:5px 12px;border-radius:var(--pill-r);background:#f0f0f0;color:var(--navy)}
+.video-badge{display:inline-flex;align-items:center;gap:6px;background:#1a1a2e10;color:var(--navy);font-size:12px;padding:6px 12px;border-radius:var(--btn-r);font-weight:600}
+.detail-owner{display:flex;align-items:center;gap:12px;background:#f8f8f8;padding:12px;border-radius:var(--btn-r)}
+.owner-av-lg{width:48px;height:48px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--green);font-weight:700;flex-shrink:0}
+.owner-info{flex:1}
+.owner-info .oname{font-weight:700;font-size:14px;color:var(--navy)}
+.owner-info .ostatst{font-size:12px;color:var(--gray)}
+.me-interesa-btn{background:var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;padding:16px;border-radius:var(--btn-r);border:none;cursor:pointer;width:100%;transition:opacity .2s}
+.me-interesa-btn:active{opacity:.8}
+
+/* ===================== SEARCH ===================== */
+#search{padding:16px;gap:12px}
+.search-header{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+.search-input-wrap{position:relative}
+.search-input{width:100%;padding:12px 16px 12px 42px;border:1.5px solid var(--border);border-radius:var(--btn-r);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;color:var(--navy);background:var(--white);transition:border-color .2s}
+.search-input:focus{border-color:var(--green)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gray)}
+.cat-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;flex-shrink:0}
+.cat-pills::-webkit-scrollbar{display:none}
+.cat-pill{white-space:nowrap;font-size:12px;padding:6px 14px;border-radius:var(--pill-r);border:1.5px solid var(--border);color:var(--navy);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;flex-shrink:0;background:var(--white)}
+.cat-pill.active{background:var(--navy);color:var(--green);border-color:var(--navy)}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-bottom:16px}
+.mini-card{background:var(--white);border-radius:var(--btn-r);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .2s}
+.mini-card:active{transform:scale(.97)}
+.mini-img{height:100px;display:flex;align-items:center;justify-content:center;font-size:36px;background:#f0f0f0}
+.mini-body{padding:10px}
+.mini-name{font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:4px}
+.mini-loc{font-size:11px;color:var(--gray)}
+.mini-val{font-size:12px;font-weight:600;color:var(--navy);margin-top:4px}
+.mini-cat{font-size:10px;background:var(--green);color:var(--navy);padding:2px 8px;border-radius:var(--pill-r);font-weight:700;display:inline-block;margin-top:4px}
+
+/* ===================== MESSAGES ===================== */
+#messages{background:var(--white)}
+.msg-header{padding:20px 16px 12px;font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:var(--navy);flex-shrink:0}
+.conv-list{flex:1;overflow-y:auto;padding:0 16px}
+.conv-list::-webkit-scrollbar{display:none}
+.conv-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .2s}
+.conv-item:active{opacity:.7}
+.conv-avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--green);font-weight:700;flex-shrink:0}
+.conv-info{flex:1;min-width:0}
+.conv-name{font-weight:700;font-size:14px;color:var(--navy)}
+.conv-last{font-size:12px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.conv-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.conv-time{font-size:11px;color:var(--gray)}
+.conv-badge{background:var(--green);color:var(--navy);font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* CHAT SCREEN */
+#chat-screen{position:absolute;inset:0;background:var(--white);z-index:40;display:none;flex-direction:column}
+#chat-screen.show{display:flex}
+.chat-topbar{background:var(--navy);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.chat-back{color:var(--green);cursor:pointer;font-size:20px;font-weight:700;background:none;border:none}
+.chat-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--green);font-weight:700}
+.chat-info{flex:1}
+.chat-uname{font-weight:700;font-size:14px;color:var(--white)}
+.chat-sub{font-size:11px;color:rgba(255,255,255,.5)}
+.chat-disclaimer{background:#fff8e1;padding:6px 12px;font-size:11px;color:#888;text-align:center;flex-shrink:0;border-bottom:1px solid #f0e0b0}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.chat-messages::-webkit-scrollbar{display:none}
+.msg-bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5}
+.msg-bubble.sent{background:var(--green);color:var(--navy);align-self:flex-end;border-bottom-right-radius:4px;font-weight:500}
+.msg-bubble.recv{background:#f0f0f0;color:var(--navy);align-self:flex-start;border-bottom-left-radius:4px}
+.msg-bubble.sys{background:#fff3cd;color:#856404;align-self:center;font-size:12px;border-radius:12px;text-align:center;max-width:85%}
+.msg-time{font-size:10px;color:var(--gray);margin-top:2px}
+.chat-ad-banner{background:#f9f9f9;border-top:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chat-ad-text{font-size:11px;color:var(--gray)}
+.chat-ad-label{font-size:10px;color:#bbb;background:#f0f0f0;padding:2px 6px;border-radius:6px}
+.chat-input-bar{background:var(--white);border-top:1px solid var(--border);padding:10px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chat-input{flex:1;border:1.5px solid var(--border);border-radius:24px;padding:8px 14px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
+.chat-icon-btn{width:32px;height:32px;border-radius:50%;background:#f0f0f0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.chat-send-btn{background:var(--green);color:var(--navy);width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ===================== PUBLISH ===================== */
+#publish{padding:16px;gap:14px;background:var(--white)}
+.pub-header{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:var(--navy)}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.photo-slot{aspect-ratio:1;background:#f0f0f0;border-radius:var(--btn-r);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;color:var(--gray);transition:all .2s;position:relative}
+.photo-slot.filled{background:#e8f8f0;border-color:var(--green);font-size:28px}
+.photo-slot:active{transform:scale(.97)}
+.photo-slot .photo-num{position:absolute;bottom:4px;right:6px;font-size:10px;color:var(--gray)}
+.video-slot{background:#f0f0f0;border-radius:var(--btn-r);border:2px dashed var(--border);padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.video-slot-icon{font-size:24px}
+.video-slot-text{flex:1}
+.video-slot-text .vt{font-size:13px;font-weight:600;color:var(--navy)}
+.video-slot-text .vs{font-size:11px;color:var(--gray)}
+.form-label{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px;display:block}
+.form-input,.form-textarea,.form-select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--btn-r);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;color:var(--navy);background:var(--white);transition:border-color .2s}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--green)}
+.form-textarea{resize:none;height:80px;line-height:1.5}
+.value-row{display:flex;gap:8px}
+.value-row .form-input{flex:1}
+.value-row .form-select{width:90px}
+.wishlist-tags-input{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border:1.5px solid var(--border);border-radius:var(--btn-r);min-height:48px;cursor:text}
+.wish-tag{background:var(--green);color:var(--navy);font-size:12px;padding:4px 10px;border-radius:var(--pill-r);display:flex;align-items:center;gap:4px;font-weight:600}
+.wish-tag .rm{cursor:pointer;font-size:14px;line-height:1}
+.wish-add-btn{font-size:11px;color:var(--gray);border:1px dashed var(--border);padding:4px 10px;border-radius:var(--pill-r);cursor:pointer;background:none;font-family:'DM Sans',sans-serif}
+.cash-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--navy);cursor:pointer}
+.cash-check input{accent-color:var(--green);width:16px;height:16px}
+.pub-btn{background:var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;padding:16px;border-radius:var(--btn-r);border:none;cursor:pointer;width:100%;transition:opacity .2s;margin-bottom:24px}
+.pub-btn:active{opacity:.8}
+
+/* SUCCESS SCREEN */
+#success-screen{position:absolute;inset:0;background:var(--navy);z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+#success-screen.show{display:flex}
+.success-icon{font-size:72px;animation:bounceIn .6s ease}
+.success-title{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:var(--green);text-align:center;line-height:1.2}
+.success-sub{font-size:15px;color:rgba(255,255,255,.7);text-align:center}
+.success-ok-btn{background:var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;padding:16px 48px;border-radius:var(--btn-r);border:none;cursor:pointer;margin-top:8px}
+.confetti-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(900px) rotate(720deg);opacity:0}}
+
+/* ===================== PROFILE ===================== */
+#profile{background:var(--white);gap:0}
+.profile-header{background:var(--navy);padding:24px 20px 28px;display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:rgba(0,245,160,.15);border:3px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--green);font-weight:700;cursor:pointer}
+.profile-name{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:var(--white)}
+.profile-handle{font-size:13px;color:rgba(255,255,255,.5)}
+.profile-loc{font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:4px}
+.profile-stats-row{display:flex;gap:0;width:100%;margin-top:4px}
+.pstat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+.pstat:last-child{border-right:none}
+.pstat-val{font-family:'Poppins',sans-serif;font-weight:700;font-size:20px;color:var(--green)}
+.pstat-label{font-size:10px;color:rgba(255,255,255,.5)}
+.profile-body{flex:1;overflow-y:auto;padding:16px}
+.profile-body::-webkit-scrollbar{display:none}
+.profile-section{margin-bottom:20px}
+.profile-section-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.bio-text{font-size:14px;color:var(--gray);line-height:1.6;background:#f8f8f8;padding:12px;border-radius:var(--btn-r)}
+.badges-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.badge-chip{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:var(--btn-r);background:#f8f8f8;cursor:pointer;transition:all .2s;position:relative}
+.badge-chip.earned{background:rgba(0,245,160,.1);border:1.5px solid rgba(0,245,160,.3)}
+.badge-chip.locked{opacity:.45;filter:grayscale(.5)}
+.badge-chip:active{transform:scale(.95)}
+.badge-emoji{font-size:22px}
+.badge-name{font-size:9px;text-align:center;color:var(--navy);font-weight:600;line-height:1.2}
+.badge-chip.earned .badge-name{color:var(--navy)}
+.my-listings-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.my-listings-scroll::-webkit-scrollbar{display:none}
+.listing-mini{flex-shrink:0;width:100px;background:#f8f8f8;border-radius:var(--btn-r);overflow:hidden;cursor:pointer}
+.listing-mini-img{height:70px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:28px}
+.listing-mini-body{padding:6px}
+.listing-mini-name{font-size:11px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:4px}
+.listing-mini-status{font-size:9px;padding:2px 6px;border-radius:var(--pill-r);font-weight:600;display:inline-block}
+.status-activo{background:#e8f8f0;color:#00aa70}
+.status-negociacion{background:#fff3cd;color:#856404}
+.status-intercambiado{background:#e8e8f8;color:#4040aa}
+.review-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.review-av{width:36px;height:36px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--green);font-weight:700;flex-shrink:0}
+.review-content{flex:1}
+.review-name{font-size:13px;font-weight:700;color:var(--navy)}
+.review-stars{font-size:12px;color:#f59e0b;margin:2px 0}
+.review-text{font-size:12px;color:var(--gray);line-height:1.5}
+.review-date{font-size:10px;color:#bbb;margin-top:2px}
+
+/* BADGE TOOLTIP */
+.badge-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--navy);color:var(--white);font-size:11px;padding:6px 10px;border-radius:8px;white-space:nowrap;z-index:100;pointer-events:none;opacity:0;transition:opacity .2s}
+.badge-tooltip.show{opacity:1}
+.badge-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--navy)}
+
+/* ===================== MATCH SCREEN ===================== */
+#match-screen{position:absolute;inset:0;background:rgba(10,10,30,.95);z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;gap:0;overflow:hidden}
+#match-screen.show{display:flex}
+.match-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.match-particle{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--green);animation:floatUp linear infinite}
+@keyframes floatUp{0%{transform:translateY(900px) scale(0);opacity:0}10%{opacity:1}90%{opacity:.8}100%{transform:translateY(-50px) scale(1.2);opacity:0}}
+.match-content{display:flex;flex-direction:column;align-items:center;gap:16px;z-index:1;animation:matchEntrance .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes matchEntrance{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.match-heart{font-size:48px;animation:heartBeat .8s ease infinite alternate}
+@keyframes heartBeat{from{transform:scale(1)}to{transform:scale(1.2)}}
+.match-title{font-family:'Poppins',sans-serif;font-size:28px;font-weight:800;color:var(--green);text-align:center;line-height:1.1}
+.match-avatars{display:flex;align-items:center;gap:16px}
+.match-av{width:64px;height:64px;border-radius:50%;background:rgba(0,245,160,.15);border:3px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--green);font-weight:700}
+.match-x{font-size:24px;color:var(--green);font-weight:700}
+.match-products{background:rgba(255,255,255,.08);border-radius:var(--btn-r);padding:14px 20px;text-align:center;width:300px}
+.match-prod-text{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:6px}
+.match-prod-names{font-size:15px;font-weight:700;color:var(--white)}
+.match-btns{display:flex;flex-direction:column;gap:10px;width:300px;margin-top:8px}
+.match-chat-btn{background:var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;padding:16px;border-radius:var(--btn-r);border:none;cursor:pointer;width:100%}
+.match-later-btn{background:transparent;color:rgba(255,255,255,.6);font-size:14px;padding:12px;border-radius:var(--btn-r);border:1px solid rgba(255,255,255,.2);cursor:pointer;width:100%;font-family:'DM Sans',sans-serif}
+
+/* ===================== BADGE UNLOCK ===================== */
+#badge-unlock{position:absolute;inset:0;background:rgba(10,10,30,.97);z-index:90;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow:hidden}
+#badge-unlock.show{display:flex}
+.bu-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bu-content{z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;animation:matchEntrance .5s cubic-bezier(.34,1.56,.64,1) both}
+.bu-badge-icon{font-size:72px;animation:spin360 .8s ease}
+@keyframes spin360{from{transform:rotate(-180deg) scale(0)}to{transform:rotate(0deg) scale(1)}}
+.bu-title{font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:2px}
+.bu-badge-name{font-family:'Poppins',sans-serif;font-size:24px;font-weight:800;color:var(--green);text-align:center}
+.bu-desc{font-size:14px;color:rgba(255,255,255,.7);text-align:center;max-width:260px}
+.bu-ok-btn{background:var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 48px;border-radius:var(--btn-r);border:none;cursor:pointer;margin-top:8px}
+
+/* RATING FLOW */
+#rating-screen{position:absolute;inset:0;background:var(--white);z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px}
+#rating-screen.show{display:flex}
+.rating-title{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:var(--navy);text-align:center}
+.rating-sub{font-size:14px;color:var(--gray);text-align:center}
+.star-row{display:flex;gap:12px;justify-content:center}
+.star-btn{font-size:40px;cursor:pointer;filter:grayscale(1);transition:filter .2s,transform .2s}
+.star-btn.active{filter:none;transform:scale(1.2)}
+.rating-comment{width:100%;height:80px;padding:12px;border:1.5px solid var(--border);border-radius:var(--btn-r);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:none}
+.rating-comment:focus{border-color:var(--green)}
+.rating-send-btn{background:var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;padding:16px;border-radius:var(--btn-r);border:none;cursor:pointer;width:100%}
+
+/* ANIMATIONS */
+@keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">intercambi<span>.app</span></div>
+    <div class="lang-toggle">🇲🇽 ES</div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="home" class="screen active">
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <div class="filter-tab active" onclick="setFilter('all')">Mostrar todo</div>
+        <div class="filter-tab" onclick="setFilter('wish')">Solo lo que busco</div>
+        <div class="filter-tab" onclick="setFilter('offer')">Buscan lo que ofrezco</div>
+      </div>
+      <div class="distance-row">
+        <span class="dist-label">📍 Distancia:</span>
+        <div class="dist-btns">
+          <div class="dist-btn" onclick="setDist(this,'5km')">5km</div>
+          <div class="dist-btn active" onclick="setDist(this,'10km')">10km</div>
+          <div class="dist-btn" onclick="setDist(this,'25km')">25km</div>
+          <div class="dist-btn" onclick="setDist(this,'nacional')">Nacional</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-area">
+      <div class="card-counter" id="card-counter"></div>
+      <div class="stack-wrapper" id="stack-wrapper"></div>
+    </div>
+    <div class="swipe-btns">
+      <button class="sw-btn sw-pass" onclick="swipe('left')" title="Pasar">✕</button>
+      <button class="sw-btn sw-expand" onclick="expandCard()" title="Ver más">↓</button>
+      <button class="sw-btn sw-like" onclick="swipe('right')" title="Me interesa">♥</button>
+    </div>
+  </div>
+
+  <!-- SEARCH SCREEN -->
+  <div id="search" class="screen">
+    <div class="search-header">Buscar Trueques</div>
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" placeholder="Busca guitarras, vinilos, bicicletas..." oninput="filterSearch()">
+    </div>
+    <div class="cat-pills" id="cat-pills"></div>
+    <div class="results-grid" id="results-grid"></div>
+  </div>
+
+  <!-- MESSAGES SCREEN -->
+  <div id="messages" class="screen">
+    <div class="msg-header">Mensajes</div>
+    <div class="conv-list" id="conv-list"></div>
+  </div>
+
+  <!-- PUBLISH SCREEN -->
+  <div id="publish" class="screen">
+    <div class="pub-header">Publicar Intercambio</div>
+    <div>
+      <label class="form-label">📷 Fotos (hasta 6)</label>
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+    <div class="video-slot" onclick="this.style.background='#e8f8f0'">
+      <span class="video-slot-icon">🎬</span>
+      <div class="video-slot-text">
+        <div class="vt">Video corto opcional</div>
+        <div class="vs">máx 15 segundos</div>
+      </div>
+      <span>+</span>
+    </div>
+    <div>
+      <label class="form-label">Nombre del producto</label>
+      <input class="form-input" id="pub-name" placeholder="Ej. Guitarra Fender Stratocaster">
+    </div>
+    <div>
+      <label class="form-label">Descripción</label>
+      <textarea class="form-textarea" id="pub-desc" placeholder="Describe el estado, marca, modelo y detalles importantes..."></textarea>
+    </div>
+    <div>
+      <label class="form-label">Valor estimado</label>
+      <div class="value-row">
+        <input class="form-input" id="pub-value" type="number" placeholder="0">
+        <select class="form-select" id="pub-currency">
+          <option value="MXN">MXN</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label class="form-label">Categoría</label>
+      <select class="form-select" id="pub-cat">
+        <option value="">— Selecciona una categoría —</option>
+        <option>Electrónica</option><option>Ropa</option><option>Libros y coleccionables</option>
+        <option>Instrumentos</option><option>Deportes</option><option>Hogar</option>
+        <option>Videojuegos</option><option>Arte</option><option>Plantas</option><option>Servicios</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Colonia y ciudad</label>
+      <input class="form-input" id="pub-loc" placeholder="Ej. Roma Norte, CDMX">
+    </div>
+    <div>
+      <label class="form-label">¿Qué quieres a cambio?</label>
+      <div class="wishlist-tags-input" id="wishlist-input" onclick="addWishTag()"></div>
+      <button class="wish-add-btn" onclick="addWishTag()" style="margin-top:6px">+ Agregar ítem</button>
+    </div>
+    <label class="cash-check">
+      <input type="checkbox" id="cash-check"> Acepto efectivo también
+    </label>
+    <button class="pub-btn" onclick="submitPublish()">🚀 Publicar intercambio</button>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div id="profile" class="screen">
+    <div class="profile-header">
+      <div class="profile-avatar">CR</div>
+      <div class="profile-name">César R.</div>
+      <div class="profile-handle">@cesar_intercambi</div>
+      <div class="profile-loc">📍 Condesa, CDMX</div>
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="pstat-val">7</div><div class="pstat-label">Intercambios</div></div>
+        <div class="pstat"><div class="pstat-val">⭐4.9</div><div class="pstat-label">Calificación</div></div>
+        <div class="pstat"><div class="pstat-val">&lt;1h</div><div class="pstat-label">Resp. prom.</div></div>
+      </div>
+    </div>
+    <div class="profile-body">
+      <div class="profile-section">
+        <div class="profile-section-title">Sobre mí</div>
+        <div class="bio-text">Me gustan los intercambios justos y rápidos. Sin dramas. 🤝</div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-section-title">Mis badges</div>
+        <div class="badges-grid" id="badges-grid"></div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-section-title">Mis publicaciones</div>
+        <div class="my-listings-scroll" id="my-listings"></div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-section-title">Calificaciones recientes</div>
+        <div id="reviews-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div id="nav">
+    <div class="nav-item active" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Inicio</span>
+    </div>
+    <div class="nav-item" onclick="goTo('search')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Buscar</span>
+    </div>
+    <div class="nav-item publish-btn" onclick="goTo('publish')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Publicar</span>
+    </div>
+    <div class="nav-item" onclick="goTo('messages')">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Mensajes</span>
+    </div>
+    <div class="nav-item" onclick="goTo('profile')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Perfil</span>
+    </div>
+  </div>
+
+  <!-- OVERLAYS -->
+  <div id="detail-overlay">
+    <div class="detail-close" onclick="closeDetail()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>Volver al feed</span>
+    </div>
+    <div class="detail-hero" id="detail-hero"></div>
+    <div class="detail-content" id="detail-content"></div>
+  </div>
+
+  <div id="chat-screen">
+    <div class="chat-topbar">
+      <button class="chat-back" onclick="closeChat()">‹</button>
+      <div class="chat-av" id="chat-av"></div>
+      <div class="chat-info">
+        <div class="chat-uname" id="chat-uname"></div>
+        <div class="chat-sub">En línea · intercambi.app no gestiona el envío</div>
+      </div>
+    </div>
+    <div class="chat-disclaimer">⚠️ intercambi.app no es responsable de la logística del intercambio.</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-ad-banner">
+      <span class="chat-ad-text">🛍️ <strong>Mercado Libre</strong> — Envíos rápidos a todo México</span>
+      <span class="chat-ad-label">Publicidad</span>
+    </div>
+    <div class="chat-input-bar">
+      <button class="chat-icon-btn">📎</button>
+      <input class="chat-input" id="chat-input" placeholder="Escribe un mensaje..." onkeydown="sendMsg(event)">
+      <button class="chat-icon-btn">🎤</button>
+      <button class="chat-icon-btn">📍</button>
+      <button class="chat-send-btn" onclick="sendMsgClick()">➤</button>
+    </div>
+  </div>
+
+  <div id="match-screen">
+    <div class="match-particles" id="match-particles"></div>
+    <div class="match-content">
+      <div class="match-heart">💚</div>
+      <div class="match-title">¡Es un Match!</div>
+      <div class="match-avatars">
+        <div class="match-av">CR</div>
+        <div class="match-x">⇄</div>
+        <div class="match-av" id="match-av-other"></div>
+      </div>
+      <div class="match-products">
+        <div class="match-prod-text">¡Sus productos son compatibles!</div>
+        <div class="match-prod-names" id="match-prod-names"></div>
+      </div>
+      <div class="match-btns">
+        <button class="match-chat-btn" onclick="startChat()">💬 Iniciar chat</button>
+        <button class="match-later-btn" onclick="closeMatch()">Ver más tarde</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="success-screen">
+    <div class="confetti-wrap" id="success-confetti"></div>
+    <div class="success-icon">🎉</div>
+    <div class="success-title">¡Tu producto<br>está en vivo!</div>
+    <div class="success-sub">Ya aparece en el feed de intercambi.app</div>
+    <button class="success-ok-btn" onclick="closeSuccess()">¡Genial!</button>
+  </div>
+
+  <div id="rating-screen">
+    <div style="font-size:48px">⭐</div>
+    <div class="rating-title">¿Cómo te fue con<br><span id="rating-username"></span>?</div>
+    <div class="rating-sub">Tu opinión ayuda a la comunidad</div>
+    <div class="star-row" id="star-row"></div>
+    <textarea class="rating-comment" placeholder="Cuéntanos cómo fue el intercambio (opcional)..."></textarea>
+    <button class="rating-send-btn" onclick="submitRating()">Enviar calificación</button>
+    <button onclick="document.getElementById('rating-screen').classList.remove('show')" style="background:none;border:none;color:var(--gray);font-size:13px;cursor:pointer;margin-top:-8px">Omitir</button>
+  </div>
+
+  <div id="badge-unlock">
+    <div class="bu-confetti" id="bu-confetti"></div>
+    <div class="bu-content">
+      <div class="bu-title">¡Nuevo Badge Desbloqueado!</div>
+      <div class="bu-badge-icon" id="bu-icon"></div>
+      <div class="bu-badge-name" id="bu-name"></div>
+      <div class="bu-desc" id="bu-desc"></div>
+      <button class="bu-ok-btn" onclick="closeBadgeUnlock()">¡Genial!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const mockProducts = [
+  {id:1,name:"Guitarra Fender Stratocaster",category:"Instrumentos",value:8500,currency:"MXN",location:"Condesa, CDMX",emoji:"🎸",owner:"carlos_mx",rating:4.9,exchanges:12,wishlist:["Sintetizador","Teclado MIDI","Bajo eléctrico"],initials:"CM"},
+  {id:2,name:"Colección de Viniles 80s",category:"Libros y coleccionables",value:2200,currency:"MXN",location:"Roma Norte, CDMX",emoji:"🎵",owner:"ana_records",rating:5.0,exchanges:34,wishlist:["Tornamesa","Amplificador","Casetes"],initials:"AR"},
+  {id:3,name:"Bicicleta de montaña Trek",category:"Deportes",value:6000,currency:"MXN",location:"Polanco, CDMX",emoji:"🚵",owner:"bike_trader",rating:4.7,exchanges:8,wishlist:["Patines","Longboard","Casco premium"],initials:"BT"},
+  {id:4,name:"PlayStation 5 + 3 juegos",category:"Videojuegos",value:14000,currency:"MXN",location:"Monterrey, NL",emoji:"🎮",owner:"gamer_mty",rating:4.8,exchanges:5,wishlist:["Xbox Series X","Nintendo Switch","PC gaming"],initials:"GM"},
+  {id:5,name:"Album Mundial 2026 completo",category:"Libros y coleccionables",value:1500,currency:"MXN",location:"Guadalajara, JAL",emoji:"⚽",owner:"futbol_fan",rating:4.6,exchanges:19,wishlist:["Camiseta selección","Memorabilia","Cromos raros"],initials:"FF"},
+  {id:6,name:"iPhone 14 Pro 256GB",category:"Electrónica",value:12000,currency:"MXN",location:"Santa Fe, CDMX",emoji:"📱",owner:"techseller_mx",rating:4.9,exchanges:27,wishlist:["Samsung S24","iPad","MacBook Air"],initials:"TM"},
+  {id:7,name:"Cafetera Nespresso Vertuo",category:"Hogar",value:3500,currency:"MXN",location:"Napoles, CDMX",emoji:"☕",owner:"cafe_lover",rating:4.5,exchanges:3,wishlist:["Licuadora Vitamix","Freidora de aire","Batidora KitchenAid"],initials:"CL"},
+  {id:8,name:"Colección manga One Piece 1-50",category:"Libros y coleccionables",value:4000,currency:"MXN",location:"Coyoacán, CDMX",emoji:"📚",owner:"otaku_mx",rating:5.0,exchanges:41,wishlist:["Figura coleccionable","Otros mangas","Anime merch"],initials:"OM"},
+  {id:9,name:"Tabla de surf 6'2\"",category:"Deportes",value:7500,currency:"MXN",location:"Puerto Escondido, OAX",emoji:"🏄",owner:"surf_mx",rating:4.8,exchanges:6,wishlist:["Kayak","SUP","Equipo buceo"],initials:"SM"},
+  {id:10,name:"Cámara Sony Alpha A6000",category:"Electrónica",value:9000,currency:"MXN",location:"Juárez, CDMX",emoji:"📷",owner:"foto_pro",rating:4.7,exchanges:15,wishlist:["Drone","Gopro","Lentes adicionales"],initials:"FP"},
+  {id:11,name:"Vintage Levis 501 Collection",category:"Ropa",value:3200,currency:"MXN",location:"Hipódromo, CDMX",emoji:"👖",owner:"vintage_moda",rating:4.9,exchanges:52,wishlist:["Chamarras vintage","Tenis retro","Accesorios 90s"],initials:"VM"},
+  {id:12,name:"Clases de inglés (10 sesiones)",category:"Servicios",value:2000,currency:"MXN",location:"Online / CDMX",emoji:"🗣️",owner:"teacher_mx",rating:5.0,exchanges:18,wishlist:["Clases de diseño","Clases de programación","Coaching"],initials:"TL"},
+  {id:13,name:"Macbook Pro M1 2021",category:"Electrónica",value:25000,currency:"MXN",location:"Los Angeles, CA",emoji:"💻",owner:"tech_la",rating:4.8,exchanges:9,wishlist:["iPad Pro","Monitor 4K","Teclado mecánico"],initials:"TL"},
+  {id:14,name:"Jordan 1 Retro High OG size 10",category:"Ropa",value:280,currency:"USD",location:"Houston, TX",emoji:"👟",owner:"sneaker_tx",rating:4.6,exchanges:23,wishlist:["Air Force 1","Yeezy","New Balance 990"],initials:"ST"},
+  {id:15,name:"Planta Monstera Deliciosa",category:"Plantas",value:800,currency:"MXN",location:"Xochimilco, CDMX",emoji:"🌿",owner:"green_soul",rating:5.0,exchanges:7,wishlist:["Suculentas raras","Orquídeas","Cactus"],initials:"GS"},
+  {id:16,name:"Mesa de billar plegable",category:"Hogar",value:5500,currency:"MXN",location:"Naucalpan, EDOMEX",emoji:"🎱",owner:"casa_gamer",rating:4.4,exchanges:2,wishlist:["Futbolito","Ping pong","Consola retro"],initials:"CG"},
+  {id:17,name:"Set de óleos y lienzos artista",category:"Arte",value:2800,currency:"MXN",location:"San Ángel, CDMX",emoji:"🎨",owner:"artista_mx",rating:4.9,exchanges:11,wishlist:["Tablet Wacom","Cámara","Curso arte digital"],initials:"AM"},
+  {id:18,name:"Teclado mecánico Keychron K2",category:"Electrónica",value:4500,currency:"MXN",location:"Satelite, EDOMEX",emoji:"⌨️",owner:"dev_mx",rating:4.7,exchanges:14,wishlist:["Monitor gaming","Mouse ergonómico","Webcam 4K"],initials:"DM"},
+  {id:19,name:"Mochila North Face 40L",category:"Deportes",value:2200,currency:"MXN",location:"Puebla, PUE",emoji:"🎒",owner:"aventurero",rating:4.6,exchanges:8,wishlist:["Sleeping bag","Tienda de campaña","Botas hiking"],initials:"AV"},
+  {id:20,name:"Colección Funko Pop Marvel (12 pzs)",category:"Libros y coleccionables",value:3600,currency:"MXN",location:"Tlalpan, CDMX",emoji:"🦸",owner:"collector_mx",rating:4.8,exchanges:31,wishlist:["Figuras anime","LEGO sets","Hot Wheels edición especial"],initials:"CO"}
+];
+
+const adCard = {isAd:true,brand:"Mercado Libre",tagline:"Millones de productos, envíos rápidos",emoji:"🛒"};
+
+const currentUser = {
+  username:"cesar_intercambi",displayName:"César R.",location:"Condesa, CDMX",
+  rating:4.9,totalExchanges:7,responseTime:"< 1 hora",
+  bio:"Me gustan los intercambios justos y rápidos. Sin dramas.",
+  listings:[
+    {id:101,name:"Guitarra eléctrica Squier",category:"Instrumentos",value:4500,currency:"MXN",status:"Activo",emoji:"🎸"},
+    {id:102,name:"Album Mundial 2026 incompleto",category:"Coleccionables",value:600,currency:"MXN",status:"Activo",emoji:"⚽"},
+    {id:103,name:"Bicicleta urbana Mercier",category:"Deportes",value:3200,currency:"MXN",status:"En negociación",emoji:"🚲"}
+  ],
+  wishlist:["Viniles","Sintetizador","Cámara analógica"],
+  badges:{earned:["novato","respuesta_rapida","rockstar"],locked:["coleccionista","mercader","rey","cinco_estrellas","poliglota","multitrueque","techie","fashion","biblionauta","atleta","home_dealer","player_one","artesano","green_trader","skill_swapper"]}
+};
+
+const allBadges = [
+  {id:"novato",emoji:"🔰",name:"Novato del Trueque",desc:"Primer intercambio completado"},
+  {id:"coleccionista",emoji:"📦",name:"Coleccionista",desc:"Completa 10 intercambios"},
+  {id:"mercader",emoji:"🏪",name:"El Mercader",desc:"Completa 50 intercambios"},
+  {id:"rey",emoji:"👑",name:"Rey del Swap",desc:"Completa 100+ intercambios"},
+  {id:"respuesta_rapida",emoji:"⚡",name:"Respuesta Rápida",desc:"Tiempo de respuesta menor a 1 hora"},
+  {id:"cinco_estrellas",emoji:"⭐",name:"5 Estrellas",desc:"Rating de 5.0 con 10+ reseñas"},
+  {id:"poliglota",emoji:"🌎",name:"Políglota del Trueque",desc:"Intercambios en MX y USA"},
+  {id:"multitrueque",emoji:"🔀",name:"Multitrueque",desc:"Intercambios en 5+ categorías"},
+  {id:"techie",emoji:"💻",name:"Techie Swapper",desc:"3+ intercambios en Electrónica"},
+  {id:"fashion",emoji:"👗",name:"Fashion Trader",desc:"3+ intercambios en Ropa"},
+  {id:"biblionauta",emoji:"📚",name:"Biblionauta",desc:"3+ intercambios en Libros"},
+  {id:"rockstar",emoji:"🎸",name:"Rockstar del Trueque",desc:"3+ intercambios en Instrumentos"},
+  {id:"atleta",emoji:"🏋️",name:"Atleta del Swap",desc:"3+ intercambios en Deportes"},
+  {id:"home_dealer",emoji:"🏠",name:"Home Dealer",desc:"3+ intercambios en Hogar"},
+  {id:"player_one",emoji:"🎮",name:"Player One",desc:"3+ intercambios en Videojuegos"},
+  {id:"artesano",emoji:"🎨",name:"Artesano del Cambio",desc:"3+ intercambios en Arte"},
+  {id:"green_trader",emoji:"🌿",name:"Green Trader",desc:"3+ intercambios en Plantas"},
+  {id:"skill_swapper",emoji:"🤝",name:"Skill Swapper",desc:"3+ intercambios en Servicios"}
+];
+
+const mockConversations = [
+  {id:1,user:"ana_records",initials:"AR",lastMsg:"¿Cuándo podemos reunirnos?",time:"12:34",unread:2,matchProduct:"Colección de Viniles 80s",msgs:[
+    {from:"sys",text:"🎉 ¡Hicieron match! Ya pueden negociar los detalles de su intercambio."},
+    {from:"recv",text:"¡Hola! Me interesa mucho tu guitarra Squier. ¿Está en buen estado?"},
+    {from:"sent",text:"¡Sí! Está excelente, tiene un año de uso. ¿Los viniles son originales?"},
+    {from:"recv",text:"Todos originales, importados. ¿Cuándo podemos reunirnos?"}
+  ]},
+  {id:2,user:"bike_trader",initials:"BT",lastMsg:"Perfecto, te veo en Polanco",time:"Ayer",unread:0,matchProduct:"Bicicleta de montaña Trek",msgs:[
+    {from:"sys",text:"🎉 ¡Hicieron match! Ya pueden negociar los detalles de su intercambio."},
+    {from:"sent",text:"Hola, ¿la bici tiene frenos de disco?"},
+    {from:"recv",text:"Sí, shimano hidráulicos. ¿La guitar tiene estuche?"},
+    {from:"sent",text:"Sí viene con estuche rígido. Cerramos trato."},
+    {from:"recv",text:"Perfecto, te veo en Polanco"}
+  ]},
+  {id:3,user:"futbol_fan",initials:"FF",lastMsg:"¡Genial el album!",time:"Lun",unread:0,matchProduct:"Album Mundial 2026 completo",msgs:[
+    {from:"sys",text:"🎉 ¡Hicieron match! Ya pueden negociar los detalles de su intercambio."},
+    {from:"recv",text:"¿Tu album tiene el poster?"},
+    {from:"sent",text:"Sí, completo con poster y las instrucciones. Fue al primer partido en el Azteca."},
+    {from:"recv",text:"¡Genial el album!"}
+  ]}
+];
+
+const mockReviews = [
+  {user:"ana_records",initials:"AR",stars:5,text:"¡Excelente intercambiador! Muy puntual y honesto. 100% recomendado.",date:"Hace 2 días"},
+  {user:"bike_trader",initials:"BT",stars:5,text:"Todo salió perfecto. El producto tal como se describió.",date:"Hace 1 semana"},
+  {user:"futbol_fan",initials:"FF",stars:4,text:"Buen trato, llegó a tiempo. Volvería a intercambiar.",date:"Hace 2 semanas"}
+];
+
+// ===================== STATE =====================
+let currentCardIndex = 0;
+let cardQueue = [];
+let activeConv = null;
+let currentFilter = 'all';
+let selectedCat = 'Todos';
+let pubWishlist = [];
+let filledPhotos = [true,false,false,false,false,false];
+let matchProduct = null;
+let selectedStars = 0;
+
+// ===================== INIT =====================
+function buildCardQueue(){
+  let arr = [...mockProducts];
+  let result=[];
+  for(let i=0;i<arr.length;i++){
+    if(i===4) result.push({...adCard,_adIdx:0});
+    result.push(arr[i]);
+    if(i===14) result.push({...adCard,_adIdx:1});
+  }
+  return result;
+}
+
+function init(){
+  cardQueue = buildCardQueue();
+  renderCards();
+  renderSearch();
+  renderConversations();
+  renderBadges();
+  renderMyListings();
+  renderReviews();
+  renderPhotoGrid();
+  renderWishlistInput();
+  initMatchParticles();
+}
+
+// ===================== NAVIGATION =====================
+function goTo(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navMap={home:0,search:1,publish:2,messages:3,profile:4};
+  document.querySelectorAll('.nav-item')[navMap[tab]]?.classList.add('active');
+}
+
+// ===================== HOME / SWIPE =====================
+function renderCards(){
+  const wrapper = document.getElementById('stack-wrapper');
+  wrapper.innerHTML='';
+  const counter = document.getElementById('card-counter');
+  const remaining = cardQueue.length - currentCardIndex;
+  if(remaining<=0){
+    wrapper.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px"><div style="font-size:48px">🎉</div><div style="font-family:Poppins,sans-serif;font-weight:700;font-size:18px;color:#1A1A2E">¡Has visto todo!</div><div style="font-size:13px;color:#6B7280">Vuelve más tarde para nuevos intercambios</div><button onclick="currentCardIndex=0;renderCards()" style="background:#00F5A0;color:#1A1A2E;font-family:Poppins,sans-serif;font-weight:700;font-size:14px;padding:10px 24px;border-radius:12px;border:none;cursor:pointer;margin-top:8px">Ver de nuevo</button></div>';
+    counter.textContent='';
+    return;
+  }
+  counter.textContent=`${currentCardIndex+1} / ${cardQueue.length} productos`;
+  const backIdx = currentCardIndex+1;
+  if(backIdx<cardQueue.length){
+    const back = buildCard(cardQueue[backIdx],false);
+    back.classList.add('back');
+    wrapper.appendChild(back);
+  }
+  const front = buildCard(cardQueue[currentCardIndex],true);
+  front.classList.add('front');
+  wrapper.appendChild(front);
+}
+
+function buildCard(p, isFront){
+  const div=document.createElement('div');
+  div.className='p-card';
+  if(p.isAd){
+    div.classList.add('ad-card');
+    div.innerHTML=`
+      <div class="card-img"><div class="img-bg ad-img">${p.emoji||'🛒'}</div><span class="ad-label">Publicidad</span></div>
+      <div class="card-body" style="align-items:center;text-align:center;justify-content:center">
+        <div style="font-size:11px;color:#aaa;letter-spacing:1px;text-transform:uppercase">Publicidad</div>
+        <div class="card-name">${p.brand}</div>
+        <div class="card-value" style="margin:4px 0">${p.tagline}</div>
+        <span class="ad-cta">Conoce más →</span>
+      </div>
+      <div class="like-overlay">✓</div><div class="pass-overlay">✕</div>`;
+    return div;
+  }
+  const stars='⭐'.repeat(Math.floor(p.rating))+(p.rating%1>=0.5?'½':'');
+  div.innerHTML=`
+    <div class="card-img">
+      <div class="img-bg" style="background:${cardGradient(p.id)}">${p.emoji}</div>
+      <div class="card-overlay-badge">${p.category}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">${p.name}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="card-value">$${p.value.toLocaleString()} ${p.currency} est.</span>
+      </div>
+      <div class="card-location">📍 ${p.location}</div>
+      <div class="card-owner-row">
+        <div class="owner-avatar">${p.initials}</div>
+        <span class="owner-name">@${p.owner}</span>
+        <span class="owner-rating">⭐ ${p.rating}</span>
+      </div>
+      <div class="card-wishlist">
+        <strong>Busca:</strong>
+        <div class="wishlist-tags">${p.wishlist.slice(0,3).map(w=>`<span class="wtag">${w}</span>`).join('')}</div>
+      </div>
+      <div class="ver-mas-btn" onclick="expandCard()">Ver más ↓</div>
+    </div>
+    <div class="like-overlay">✅</div>
+    <div class="pass-overlay">❌</div>`;
+  return div;
+}
+
+function cardGradient(id){
+  const gs=['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#a18cd1,#fbc2eb)','linear-gradient(135deg,#ffecd2,#fcb69f)','linear-gradient(135deg,#a1c4fd,#c2e9fb)'];
+  return gs[id%gs.length];
+}
+
+function swipe(dir){
+  const front = document.querySelector('.p-card.front');
+  if(!front) return;
+  const p = cardQueue[currentCardIndex];
+  if(dir==='right') front.classList.add('show-like');
+  else front.classList.add('show-pass');
+  setTimeout(()=>{
+    front.classList.add(dir==='right'?'fly-right':'fly-left');
+  },150);
+  setTimeout(()=>{
+    if(dir==='right' && !p.isAd) checkMatch(p);
+    else advanceCard();
+  },500);
+}
+
+function checkMatch(p){
+  const userOffers = currentUser.listings.map(l=>l.category.toLowerCase());
+  const userWish = currentUser.wishlist.map(w=>w.toLowerCase());
+  const pWishLower = p.wishlist.map(w=>w.toLowerCase());
+  const isMatch = pWishLower.some(w=>userOffers.some(o=>o.includes(w)||w.includes(o))) ||
+                  userWish.some(w=>p.name.toLowerCase().includes(w)||p.category.toLowerCase().includes(w));
+  if(isMatch || p.id===1 || p.id===2){
+    matchProduct = p;
+    showMatch(p);
+  } else {
+    advanceCard();
+  }
+}
+
+function advanceCard(){
+  currentCardIndex++;
+  renderCards();
+}
+
+function showMatch(p){
+  document.getElementById('match-av-other').textContent = p.initials||p.owner.substring(0,2).toUpperCase();
+  document.getElementById('match-prod-names').textContent = `Tu guitarra Squier × ${p.name}`;
+  document.getElementById('match-screen').classList.add('show');
+  spawnMatchParticles();
+}
+
+function closeMatch(){
+  document.getElementById('match-screen').classList.remove('show');
+  advanceCard();
+}
+
+function startChat(){
+  closeMatch();
+  const p = matchProduct;
+  if(!p) return;
+  const newConv = {
+    id:Date.now(),user:p.owner,initials:p.initials||p.owner.substring(0,2).toUpperCase(),
+    lastMsg:"¡Hicieron match!",time:"Ahora",unread:0,matchProduct:p.name,
+    msgs:[{from:"sys",text:"🎉 ¡Hicieron match! Ya pueden negociar los detalles de su intercambio."}]
+  };
+  mockConversations.unshift(newConv);
+  renderConversations();
+  openChat(newConv);
+  goTo('messages');
+}
+
+function expandCard(){
+  const p = cardQueue[currentCardIndex];
+  if(!p||p.isAd) return;
+  document.getElementById('detail-hero').innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;background:${cardGradient(p.id)}">${p.emoji}</div>`;
+  document.getElementById('detail-content').innerHTML=`
+    <div class="detail-name">${p.name}</div>
+    <div class="detail-meta">
+      <span class="detail-value">$${p.value.toLocaleString()} ${p.currency}</span>
+      <span class="detail-cat">${p.category}</span>
+    </div>
+    <div class="detail-loc">📍 ${p.location}</div>
+    <div class="detail-section-label">Descripción</div>
+    <div class="detail-desc">Este producto está en excelente estado, con poco uso y todos sus accesorios originales. Ha sido cuidado con esmero y está listo para su siguiente dueño. Ideal para quienes buscan calidad sin pagar precio de retail.<br><br>Se realizaron únicamente ${Math.floor(Math.random()*5)+1} usos desde su adquisición. El producto conserva el 95% de su valor original y no tiene golpes ni rayones visibles.</div>
+    <div class="detail-section-label">Lista de deseos</div>
+    <div class="detail-wishlist-tags">${p.wishlist.map(w=>`<span class="detail-wtag">${w}</span>`).join('')}</div>
+    <div class="video-badge">🎬 Video disponible · 15 seg</div>
+    <div class="detail-section-label">Dueño</div>
+    <div class="detail-owner">
+      <div class="owner-av-lg">${p.initials}</div>
+      <div class="owner-info">
+        <div class="oname">@${p.owner}</div>
+        <div class="ostatst">⭐ ${p.rating} · ${p.exchanges} intercambios</div>
+      </div>
+    </div>
+    <button class="me-interesa-btn" onclick="swipe('right');closeDetail()">💚 Me interesa</button>`;
+  document.getElementById('detail-overlay').classList.add('show');
+}
+
+function closeDetail(){
+  document.getElementById('detail-overlay').classList.remove('show');
+}
+
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-tab').forEach((t,i)=>{
+    t.classList.toggle('active',['all','wish','offer'][i]===f);
+  });
+}
+
+function setDist(el,d){
+  document.querySelectorAll('.dist-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===================== SEARCH =====================
+const categories = ['Todos','Electrónica','Ropa','Libros y coleccionables','Instrumentos','Deportes','Hogar','Videojuegos','Arte','Plantas','Servicios'];
+
+function renderSearch(){
+  const pills=document.getElementById('cat-pills');
+  pills.innerHTML=categories.map(c=>`<div class="cat-pill${c===selectedCat?' active':''}" onclick="selectCat('${c}')">${c}</div>`).join('');
+  filterSearch();
+}
+
+function selectCat(c){
+  selectedCat=c;
+  renderSearch();
+}
+
+function filterSearch(){
+  const q=(document.getElementById('search-input')||{value:''}).value.toLowerCase();
+  let products=mockProducts;
+  if(selectedCat!=='Todos') products=products.filter(p=>p.category===selectedCat||p.category.includes(selectedCat));
+  if(q) products=products.filter(p=>p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q));
+  const grid=document.getElementById('results-grid');
+  if(!grid) return;
+  grid.innerHTML=products.map(p=>`
+    <div class="mini-card" onclick="openMiniDetail(${p.id})">
+      <div class="mini-img" style="background:${cardGradient(p.id)}">${p.emoji}</div>
+      <div class="mini-body">
+        <div class="mini-name">${p.name}</div>
+        <div class="mini-loc">📍 ${p.location}</div>
+        <div class="mini-val">$${p.value.toLocaleString()} ${p.currency}</div>
+        <div class="mini-cat">${p.category}</div>
+      </div>
+    </div>`).join('');
+}
+
+function openMiniDetail(id){
+  const p=mockProducts.find(x=>x.id===id);
+  if(!p) return;
+  currentCardIndex=mockProducts.findIndex(x=>x.id===id);
+  cardQueue=buildCardQueue();
+  expandCard();
+}
+
+// ===================== MESSAGES =====================
+function renderConversations(){
+  const list=document.getElementById('conv-list');
+  list.innerHTML=mockConversations.map(c=>`
+    <div class="conv-item" onclick="openChat(mockConversations.find(x=>x.id===${c.id}))">
+      <div class="conv-avatar">${c.initials}</div>
+      <div class="conv-info">
+        <div class="conv-name">@${c.user}</div>
+        <div class="conv-last">${c.lastMsg}</div>
+      </div>
+      <div class="conv-right">
+        <span class="conv-time">${c.time}</span>
+        ${c.unread>0?`<span class="conv-badge">${c.unread}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function openChat(conv){
+  if(!conv) return;
+  activeConv=conv;
+  document.getElementById('chat-av').textContent=conv.initials;
+  document.getElementById('chat-uname').textContent=`@${conv.user}`;
+  const msgs=document.getElementById('chat-messages');
+  msgs.innerHTML=conv.msgs.map(m=>`
+    <div>
+      <div class="msg-bubble ${m.from}">${m.text}</div>
+      ${m.from!=='sys'?`<div class="msg-time" style="text-align:${m.from==='sent'?'right':'left'}">${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</div>`:''}
+    </div>`).join('');
+  msgs.scrollTop=msgs.scrollHeight;
+  document.getElementById('chat-screen').classList.add('show');
+  conv.unread=0;
+  renderConversations();
+}
+
+function closeChat(){
+  document.getElementById('chat-screen').classList.remove('show');
+}
+
+function sendMsg(e){if(e.key==='Enter') sendMsgClick();}
+function sendMsgClick(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text||!activeConv) return;
+  activeConv.msgs.push({from:'sent',text});
+  activeConv.lastMsg=text;
+  input.value='';
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.innerHTML=`<div class="msg-bubble sent">${text}</div><div class="msg-time" style="text-align:right">${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  renderConversations();
+}
+
+// ===================== PUBLISH =====================
+function renderPhotoGrid(){
+  const grid=document.getElementById('photo-grid');
+  if(!grid) return;
+  grid.innerHTML=filledPhotos.map((f,i)=>`
+    <div class="photo-slot${f?' filled':''}" onclick="togglePhoto(${i})">
+      ${f?'🖼️':'+'}<span class="photo-num">${i+1}</span>
+    </div>`).join('');
+}
+
+function togglePhoto(i){
+  if(i===0){filledPhotos[0]=true;}
+  else{filledPhotos[i]=!filledPhotos[i];}
+  renderPhotoGrid();
+}
+
+function renderWishlistInput(){
+  const container=document.getElementById('wishlist-input');
+  if(!container) return;
+  container.innerHTML=pubWishlist.map((w,i)=>`<span class="wish-tag">${w}<span class="rm" onclick="removeWishTag(${i})">×</span></span>`).join('');
+}
+
+function addWishTag(){
+  if(pubWishlist.length>=5){alert('Máximo 5 ítems en la lista de deseos');return;}
+  const tag=prompt('¿Qué quieres a cambio?');
+  if(tag&&tag.trim()){
+    pubWishlist.push(tag.trim());
+    renderWishlistInput();
+  }
+}
+
+function removeWishTag(i){
+  pubWishlist.splice(i,1);
+  renderWishlistInput();
+}
+
+function submitPublish(){
+  const name=document.getElementById('pub-name').value.trim();
+  if(!name){alert('Por favor ingresa el nombre del producto');return;}
+  launchConfetti('success-confetti');
+  document.getElementById('success-screen').classList.add('show');
+}
+
+function closeSuccess(){
+  document.getElementById('success-screen').classList.remove('show');
+  document.getElementById('pub-name').value='';
+  document.getElementById('pub-desc').value='';
+  document.getElementById('pub-value').value='';
+  pubWishlist=[];
+  renderWishlistInput();
+  goTo('home');
+}
+
+// ===================== PROFILE =====================
+function renderBadges(){
+  const grid=document.getElementById('badges-grid');
+  if(!grid) return;
+  grid.innerHTML=allBadges.map(b=>{
+    const earned=currentUser.badges.earned.includes(b.id);
+    return `<div class="badge-chip ${earned?'earned':'locked'}" onclick="showBadgeTooltip(this,'${b.desc}')" title="${b.desc}">
+      <span class="badge-emoji">${b.emoji}</span>
+      <span class="badge-name">${b.name}</span>
+      ${!earned?'<span style="font-size:9px;color:#aaa">🔒 Bloqueado</span>':''}
+      <div class="badge-tooltip">${b.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function showBadgeTooltip(el, desc){
+  const tip=el.querySelector('.badge-tooltip');
+  if(!tip) return;
+  tip.classList.add('show');
+  setTimeout(()=>tip.classList.remove('show'),2000);
+}
+
+function renderMyListings(){
+  const row=document.getElementById('my-listings');
+  if(!row) return;
+  row.innerHTML=currentUser.listings.map(l=>`
+    <div class="listing-mini">
+      <div class="listing-mini-img" style="background:${cardGradient(l.id)}">${l.emoji}</div>
+      <div class="listing-mini-body">
+        <div class="listing-mini-name">${l.name}</div>
+        <span class="listing-mini-status ${l.status==='Activo'?'status-activo':l.status==='En negociación'?'status-negociacion':'status-intercambiado'}">${l.status}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderReviews(){
+  const list=document.getElementById('reviews-list');
+  if(!list) return;
+  list.innerHTML=mockReviews.map(r=>`
+    <div class="review-item">
+      <div class="review-av">${r.initials}</div>
+      <div class="review-content">
+        <div class="review-name">@${r.user}</div>
+        <div class="review-stars">${'⭐'.repeat(r.stars)}</div>
+        <div class="review-text">${r.text}</div>
+        <div class="review-date">${r.date}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===================== MATCH PARTICLES =====================
+function initMatchParticles(){
+  const container=document.getElementById('match-particles');
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='match-particle';
+    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;background:${['#00F5A0','#FF6B6B','#fff','#ffd700'][Math.floor(Math.random()*4)]}`;
+    container.appendChild(p);
+  }
+}
+
+function spawnMatchParticles(){
+  const container=document.getElementById('match-particles');
+  container.innerHTML='';
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');
+    p.className='match-particle';
+    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1}s;width:${4+Math.random()*8}px;height:${4+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};background:${['#00F5A0','#FF6B6B','#fff','#ffd700','#f0a0ff'][Math.floor(Math.random()*5)]}`;
+    container.appendChild(p);
+  }
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti(containerId){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML='';
+  const colors=['#00F5A0','#FF6B6B','#ffd700','#a78bfa','#60a5fa','#f472b6'];
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s;transform:rotate(${Math.random()*360}deg);width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    container.appendChild(p);
+  }
+}
+
+// ===================== RATING =====================
+function renderStars(){
+  const row=document.getElementById('star-row');
+  if(!row) return;
+  row.innerHTML=[1,2,3,4,5].map(n=>`<span class="star-btn${n<=selectedStars?' active':''}" onclick="selectStar(${n})">⭐</span>`).join('');
+}
+
+function selectStar(n){
+  selectedStars=n;
+  renderStars();
+}
+
+function submitRating(){
+  document.getElementById('rating-screen').classList.remove('show');
+  setTimeout(()=>showBadgeUnlock('coleccionista'),400);
+}
+
+// ===================== BADGE UNLOCK =====================
+function showBadgeUnlock(badgeId){
+  const b=allBadges.find(x=>x.id===badgeId)||allBadges[0];
+  document.getElementById('bu-icon').textContent=b.emoji;
+  document.getElementById('bu-name').textContent=b.name;
+  document.getElementById('bu-desc').textContent=b.desc;
+  launchConfetti('bu-confetti');
+  document.getElementById('badge-unlock').classList.add('show');
+}
+
+function closeBadgeUnlock(){
+  document.getElementById('badge-unlock').classList.remove('show');
+}
+
+// ===================== RUN =====================
+renderStars();
+init();
+</script>
+</body>
+</html>
