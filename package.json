@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:db": "node scripts/test-db.mjs",
-    "db:demo-seed": "node scripts/gen-demo-seed.mjs"
+    "db:demo-seed": "node scripts/gen-demo-seed.mjs",
+    "db:demo-photos": "node scripts/demo-photos.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

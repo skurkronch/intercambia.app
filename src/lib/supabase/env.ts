@@ -6,9 +6,13 @@ export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_KEY);
 
 export const PHOTO_BUCKET = "listing-photos";
 
-/** Public URL of a listing photo. Demo rows store "demo:<category>" and render a placeholder. */
+/**
+ * Public URL of a listing photo. Demo rows store "demo:<category>" (placeholder)
+ * or "demo-file:<slug>/<file>" (a test photo shipped in public/demo/).
+ */
 export function photoUrl(path: string): string | null {
   if (!path || path.startsWith("demo:")) return null;
+  if (path.startsWith("demo-file:")) return `/demo/${path.slice("demo-file:".length)}`;
   return `${SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/${path}`;
 }
 
