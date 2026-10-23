@@ -8,6 +8,14 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 // Show Google only once the provider is set up in Supabase (Auth → Providers → Google).
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_AUTH_GOOGLE === "true";
 
+/** Supabase answers 429 both for the per-address cooldown ("after 42 seconds") and the project's hourly email cap. */
+function sendErrorMessage(error: { status?: number; message: string }): string {
+  if (error.status !== 429) return "No pudimos enviar el enlace. Inténtalo de nuevo.";
+  const seconds = error.message.match(/(\d+)\s*second/)?.[1];
+  if (seconds) return `Ya te mandamos un correo. Puedes pedir otro en ${seconds} segundos, o usa el código del correo anterior.`;
+  return "Se alcanzó el límite de correos por ahora. Si ya te llegó un código, escríbelo con «Ya tengo un código»; si no, inténtalo en un rato.";
+}
+
 export function SignIn({ next, failed }: { next: string; failed: boolean }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -26,7 +34,7 @@ export function SignIn({ next, failed }: { next: string; failed: boolean }) {
     setError(null);
     const { error } = await db.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: redirectTo() } });
     setBusy(false);
-    if (error) return setError(error.status === 429 ? "Pediste muchos enlaces seguidos. Espera unos minutos." : "No pudimos enviar el enlace. Inténtalo de nuevo.");
+    if (error) return setError(sendErrorMessage(error));
     setSent(true);
   }
 
@@ -108,6 +116,18 @@ export function SignIn({ next, failed }: { next: string; failed: boolean }) {
         <Button type="submit" block disabled={busy}>{busy ? "Enviando…" : "Mandarme un enlace"}</Button>
       </form>
       {error && <p className="form-error" role="alert"><Icon name="info" weight="fill" /> {error}</p>}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="signin-have-code"
+        onClick={() => {
+          if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Escribe primero el correo al que te llegó el código.");
+          setError(null);
+          setSent(true);
+        }}
+      >
+        Ya tengo un código
+      </Button>
       <p className="field-hint">Sin contraseñas: entras con el enlace que te llega. Al entrar aceptas los <a href="/terminos">términos</a> y el <a href="/aviso-de-privacidad">aviso de privacidad</a>.</p>
     </div>
   );

@@ -501,7 +501,7 @@ a.mini-row:hover .mini-title { color: var(--violet-text); }
 .signin-or { display: flex; align-items: center; gap: var(--space-3); color: var(--ink-muted); font-size: 13px; line-height: 18px; }
 .signin-or::before, .signin-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .signin-sent { display: flex; flex-direction: column; gap: var(--space-3); }
-.signin-sent > .tx-btn-ghost { align-self: flex-start; }
+.signin-sent > .tx-btn-ghost, .signin-have-code { align-self: flex-start; }
 .code-input { font-size: 24px !important; letter-spacing: 0.3em; font-variant-numeric: tabular-nums; text-align: center; }
 .select {
   width: 100%; min-height: 48px; padding: 0 var(--space-3); font-size: 16px;
