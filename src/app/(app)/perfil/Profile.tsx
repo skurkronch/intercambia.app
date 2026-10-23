@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { markBadgesSeen, signOut } from "@/app/actions";
 import { Badge } from "@/components/ds/Badge";
 import { Icon } from "@/components/ds/Icon";
@@ -19,8 +19,8 @@ const STATUS: Record<ListingStatus, { label: string; tone: string }> = {
   pausado: { label: "Pausado", tone: "neutral" },
 };
 
-export function Profile({ user, stats, listings, reviews, seenBadges, now }: {
-  user: User; stats: TradeStats; listings: Listing[]; reviews: Review[]; seenBadges: string[]; now: number;
+export function Profile({ user, stats, listings, reviews, seenBadges, now, saved }: {
+  user: User; stats: TradeStats; listings: Listing[]; reviews: Review[]; seenBadges: string[]; now: number; saved: ReactNode;
 }) {
   const badges = useMemo(() => evaluateBadges(stats), [stats]);
   const earned = badges.filter((b) => b.earned).sort(byRank);
@@ -76,6 +76,14 @@ export function Profile({ user, stats, listings, reviews, seenBadges, now }: {
         <div className="badge-grid">
           {locked.map((b) => <Badge key={b.def.id} status={b} />)}
         </div>
+      </section>
+
+      <section className="section" id="guardados" aria-labelledby="saved-title">
+        <div className="section-head">
+          <h2 className="title-lg" id="saved-title">Guardados</h2>
+          <Link href="/descubre" className="link-more">Seguir explorando <Icon name="next" /></Link>
+        </div>
+        {saved}
       </section>
 
       <section className="section" aria-labelledby="mine-title">

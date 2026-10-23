@@ -5,6 +5,9 @@ import { Icon } from "@/components/ds/Icon";
 import { Button } from "@/components/ds/primitives";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
+// Show Google only once the provider is set up in Supabase (Auth → Providers → Google).
+const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_AUTH_GOOGLE === "true";
+
 export function SignIn({ next, failed }: { next: string; failed: boolean }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -89,10 +92,14 @@ export function SignIn({ next, failed }: { next: string; failed: boolean }) {
 
   return (
     <div className="signin">
-      <Button variant="secondary" block onClick={onGoogle} disabled={busy}>
-        Continuar con Google
-      </Button>
-      <p className="signin-or"><span>o con tu correo</span></p>
+      {GOOGLE_ENABLED && (
+        <>
+          <Button variant="secondary" block onClick={onGoogle} disabled={busy}>
+            Continuar con Google
+          </Button>
+          <p className="signin-or"><span>o con tu correo</span></p>
+        </>
+      )}
       <form onSubmit={onEmail} className="signin-form" noValidate>
         <label className="field">
           <span className="field-label">Correo</span>

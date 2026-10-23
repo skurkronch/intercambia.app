@@ -81,7 +81,6 @@ export interface Listing {
   /** Approximate point (never the exact address). Null for online services. */
   location: GeoPoint | null;
   status: ListingStatus;
-  superTrueque?: boolean;
   createdAt: string;
 }
 

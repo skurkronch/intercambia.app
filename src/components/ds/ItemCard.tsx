@@ -60,7 +60,6 @@ function ListingFace({ item, top }: { item: Extract<DeckItem, { kind: "listing" 
       <div className="tx-card-scrim" />
       <div className="tx-card-top">
         <Chip tone="surface" icon="swap" className="tx-wants"><span className="chip-text">Busca: {wantsLine(l)}</span></Chip>
-        {l.superTrueque && <Chip tone="save" icon="star">Súper‑Trueque</Chip>}
       </div>
       <div className="tx-card-body">
         <div className="tx-card-row">

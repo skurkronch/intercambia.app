@@ -23,7 +23,7 @@ export function WantActions({ listing }: { listing: Listing }) {
         setDone(action);
         if (r.kind === "match") showMoment({ kind: "match", conversationId: r.conversationId, mine: r.mine, theirs: r.theirs, otherName: r.otherName });
         else if (r.kind === "interest") showToast(r.hasOffer ? `Guardamos tu interés. Si a ${r.ownerName} le late algo tuyo, se abre el chat.` : "Sube un objeto para que pueda haber match.");
-        else if (action === "save") showToast("Guardado. Lo encuentras en Descubre.");
+        else if (action === "save") showToast("Guardado. Lo encuentras en tu perfil.");
       } catch {
         showToast("Se nos cruzaron los cables. Inténtalo de nuevo.");
       }
@@ -37,7 +37,7 @@ export function WantActions({ listing }: { listing: Listing }) {
       <Button icon="heart" onClick={() => act("want")} disabled={pending || done === "want"}>
         {done === "want" ? "Interés enviado" : "Lo quiero"}
       </Button>
-      <Button variant="secondary" icon="star" onClick={() => act("save")} disabled={pending || done === "save"}>
+      <Button variant="secondary" icon="bookmark" onClick={() => act("save")} disabled={pending || done === "save"}>
         {done === "save" ? "Guardado" : "Guardar"}
       </Button>
     </div>

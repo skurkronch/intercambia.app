@@ -205,6 +205,22 @@ export async function getMyListings(viewerId: string): Promise<Listing[]> {
   return ((data ?? []) as ListingRow[]).map(toListing);
 }
 
+/** What I saved (swiped down), newest first. Skips listings that are no longer available. */
+export async function getSavedListings(viewerId: string): Promise<Listing[]> {
+  const db = await supabaseServer();
+  const { data } = await db
+    .from("swipes")
+    .select("created_at, listing:listings(*)")
+    .eq("user_id", viewerId)
+    .eq("action", "save")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return ((data ?? []) as unknown as { listing: ListingRow | null }[])
+    .map((r) => r.listing)
+    .filter((l): l is ListingRow => !!l && l.status === "activo")
+    .map(toListing);
+}
+
 /** Everything the badge rules need, from profile_stats(). */
 export async function getStats(userId: string): Promise<TradeStats> {
   const db = await supabaseServer();

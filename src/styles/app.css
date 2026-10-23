@@ -274,6 +274,10 @@ a.tx-chip:hover { border-color: var(--line-strong); }
   border: var(--border-hair) solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface); font-size: 13px; font-weight: 600;
 }
 .distance-field select { border: 0; background: transparent; font-weight: 600; font-size: 13px; padding-right: var(--space-1); cursor: pointer; }
+.filter-tools { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.saved-link { display: inline-flex; align-items: center; gap: var(--space-1); font-size: 13px; line-height: 18px; font-weight: 600; color: var(--save-text); text-decoration: none; }
+.saved-remove { display: inline-flex; align-items: center; gap: var(--space-1); font-size: 13px; }
+@media (min-width: 1024px) { .saved-link { display: none; } }
 .discover-deck { min-width: 0; }
 .discover-side { display: none; }
 .discover .tx-empty { min-height: var(--tx-card-h); justify-content: center; }

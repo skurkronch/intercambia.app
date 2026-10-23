@@ -117,6 +117,7 @@ export function Discover({ listings, owners, sponsors, wishlist, myListings, her
             <Chip key={m.value} selected={mode === m.value} onClick={() => setFeedMode(m.value)}>{m.label}</Chip>
           ))}
         </div>
+        <div className="filter-tools">
         <label className="distance-field">
           <Icon name="pin" />
           <span className="sr-only">Distancia</span>
@@ -126,6 +127,11 @@ export function Discover({ listings, owners, sponsors, wishlist, myListings, her
             ))}
           </select>
         </label>
+        <Link href="/perfil#guardados" className="saved-link">
+          <Icon name="bookmark" weight={saved.length ? "fill" : "bold"} />
+          Guardados{saved.length ? ` · ${saved.length}` : ""}
+        </Link>
+        </div>
         <p className="discover-hint">
           {mode === "busco" && (wishlist.length ? `Buscando: ${wishlist.join(", ")}.` : "Agrega en tu perfil qué estás buscando.")}
           {mode === "ofrezco" && "Personas que quieren algo de lo que ofreces: aquí el match es más probable."}
@@ -209,7 +215,7 @@ export function Discover({ listings, owners, sponsors, wishlist, myListings, her
               ))}
             </ul>
           ) : (
-            <p className="muted">Desliza hacia abajo o toca la estrella para guardar.</p>
+            <p className="muted">Desliza hacia abajo o toca el marcador para guardar.</p>
           )}
         </section>
       </aside>
