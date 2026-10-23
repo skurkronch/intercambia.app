@@ -1,0 +1,158 @@
+/* truXanger tokens — mirrors tokens.json in the design system artifact
+   (https://claude.ai/artifact/CJEXfQXpdU1G1nhZ3A46EG). Change both together. */
+
+:root {
+  color-scheme: light;
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface-stone: #eceae4;
+  --line: #dedcd5;
+  --line-strong: #8c8a83;
+  --ink: #121316;
+  --ink-muted: #5a5c63;
+  --violet: #6c3ce9;
+  --violet-hi: #8c63ff;
+  --violet-press: #4b22b8;
+  --violet-soft: #ece6fd;
+  --violet-text: #6c3ce9;
+  --on-violet: #ffffff;
+  --lime: #c8ff00;
+  --on-lime: #121316;
+  --lime-hi: #e6ff70;
+  --lime-press: #86b300;
+  --cyan: #00d8e8;
+  --cyan-hi: #8af6ff;
+  --cyan-press: #008fa3;
+  --cyan-soft: #cffafe;
+  --cyan-text: #0c6a82;
+  --on-cyan: #121316;
+  --scrim: rgba(18, 19, 22, 0.88);
+  --on-photo: #ffffff;
+  --on-photo-muted: rgba(255, 255, 255, 0.82);
+  --photo-chip: rgba(255, 255, 255, 0.18);
+  --glass: rgba(255, 255, 255, 0.55);
+  --x-accent: var(--violet);
+  --focus: #6c3ce9;
+  --want: var(--cyan);
+  --want-soft: var(--cyan-soft);
+  --want-text: var(--cyan-text);
+  --on-want: var(--on-cyan);
+  --pass: #f43f5e;
+  --pass-soft: #ffe4e8;
+  --pass-text: #be123c;
+  --on-pass: #121316;
+  --save: #f59e0b;
+  --save-soft: #fef3c7;
+  --save-text: #a34b07;
+  --on-save: #121316;
+  --error: var(--pass-text);
+  --bronze: #a8652e;
+  --bronze-hi: #f0b27a;
+  --silver: #8e95a1;
+  --silver-hi: #f3f4f6;
+  --gold: #c8960f;
+  --gold-hi: #ffe58a;
+  --crystal: #b9a6ff;
+  --crystal-hi: #efffb3;
+
+  --shadow-card: 0 1px 0 rgba(18, 19, 22, 0.04), 0 16px 32px -16px rgba(18, 19, 22, 0.28);
+  --shadow-stack: 0 2px 0 rgba(18, 19, 22, 0.06), 0 28px 48px -20px rgba(108, 60, 233, 0.42);
+  --shadow-press: 0 4px 0 #4b22b8;
+  --shadow-press-ink: 0 3px 0 #121316;
+  --glow-want: 0 0 0 3px #00d8e8, 0 0 36px 4px rgba(0, 216, 232, 0.5);
+  --glow-pass: 0 0 0 3px #f43f5e, 0 0 36px 4px rgba(244, 63, 94, 0.5);
+  --glow-save: 0 0 0 3px #f59e0b, 0 0 36px 4px rgba(245, 158, 11, 0.5);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  --border-hair: 1px;
+  --border-bold: 2px;
+  --border-stamp: 3px;
+
+  --font-display: var(--font-syne), "Arial Black", system-ui, sans-serif;
+  --font-ui: var(--font-dm-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Layout (not in the design system) */
+  --nav-h: 64px;
+  --topbar-h: 56px;
+  --rail-w: 248px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121316;
+    --surface: #1c1d21;
+    --surface-stone: #26272c;
+    --line: #33353b;
+    --line-strong: #6e7079;
+    --ink: #f7f7f5;
+    --ink-muted: #a6a8b0;
+    --violet-press: #3e1c99;
+    --violet-soft: #251a4a;
+    --violet-text: #a98dff;
+    --cyan-soft: #0b3540;
+    --cyan-text: #22d3ee;
+    --glass: rgba(38, 39, 44, 0.6);
+    --x-accent: var(--lime);
+    --focus: #c8ff00;
+    --pass-soft: #3d1019;
+    --pass-text: #fb7185;
+    --save-soft: #3a2806;
+    --save-text: #fbbf24;
+    --bronze: #b8733a;
+    --silver: #9ca3af;
+    --gold: #d4a017;
+    --crystal: #8f6bff;
+    --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 32px -12px rgba(0, 0, 0, 0.6);
+    --shadow-stack: 0 2px 0 rgba(0, 0, 0, 0.4), 0 28px 48px -16px rgba(108, 60, 233, 0.6);
+    --shadow-press: 0 4px 0 #3e1c99;
+    --shadow-press-ink: 0 3px 0 #000000;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121316;
+  --surface: #1c1d21;
+  --surface-stone: #26272c;
+  --line: #33353b;
+  --line-strong: #6e7079;
+  --ink: #f7f7f5;
+  --ink-muted: #a6a8b0;
+  --violet-press: #3e1c99;
+  --violet-soft: #251a4a;
+  --violet-text: #a98dff;
+  --cyan-soft: #0b3540;
+  --cyan-text: #22d3ee;
+  --glass: rgba(38, 39, 44, 0.6);
+  --x-accent: var(--lime);
+  --focus: #c8ff00;
+  --pass-soft: #3d1019;
+  --pass-text: #fb7185;
+  --save-soft: #3a2806;
+  --save-text: #fbbf24;
+  --bronze: #b8733a;
+  --silver: #9ca3af;
+  --gold: #d4a017;
+  --crystal: #8f6bff;
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 32px -12px rgba(0, 0, 0, 0.6);
+  --shadow-stack: 0 2px 0 rgba(0, 0, 0, 0.4), 0 28px 48px -16px rgba(108, 60, 233, 0.6);
+  --shadow-press: 0 4px 0 #3e1c99;
+  --shadow-press-ink: 0 3px 0 #000000;
+}
