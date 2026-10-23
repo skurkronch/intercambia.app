@@ -34,3 +34,8 @@ export function formatResponseTime(minutes: number): string {
 export function clockTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 }
+
+/** The time a server render happens, passed to client components so relative times match after hydration. */
+export function renderTime(): number {
+  return Date.now();
+}

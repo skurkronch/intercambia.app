@@ -193,7 +193,7 @@ export function SwipeDeck({ items, onSwipe, onOpen, onUndo, canUndo, deckRef }: 
       <div className="tx-actionbar">
         <ActionButton action="undo" icon="undo" label="Deshacer" small disabled={!canUndo} onClick={onUndo} />
         <ActionButton action="pass" icon="x" label="Paso" onClick={() => fly("pass")} disabled={!top} />
-        <ActionButton action="save" icon="star" label="Guardar o Súper‑Trueque" small onClick={() => fly("save")} disabled={!top} fill />
+        <ActionButton action="save" icon="bookmark" label="Guardar" small onClick={() => fly("save")} disabled={!top} fill />
         <ActionButton action="want" icon="heart" label="Lo quiero" onClick={() => fly("want")} disabled={!top} fill />
       </div>
     </div>

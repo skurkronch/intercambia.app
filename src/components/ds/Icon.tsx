@@ -10,7 +10,7 @@ import {
   PackageIcon as Package, PaletteIcon as Palette, PaperPlaneRightIcon as PaperPlaneRight, PlantIcon as Plant,
   PlusIcon as Plus, ShieldCheckIcon as ShieldCheck, ShuffleIcon as Shuffle, StarIcon as Star, StorefrontIcon as Storefront,
   TShirtIcon as TShirt, UserIcon as User, VideoCameraIcon as VideoCamera, WrenchIcon as Wrench, XIcon as X,
-  LockIcon as Lock, MegaphoneIcon as Megaphone, CameraIcon as Camera, InfoIcon as Info, SealCheckIcon as SealCheck,
+  LockIcon as Lock, BookmarkSimpleIcon as BookmarkSimple, MegaphoneIcon as Megaphone, CameraIcon as Camera, InfoIcon as Info, SealCheckIcon as SealCheck,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -18,6 +18,7 @@ const ICONS = {
   x: X,
   heart: Heart,
   star: Star,
+  bookmark: BookmarkSimple,
   undo: ArrowCounterClockwise,
   pin: MapPin,
   swap: ArrowsLeftRight,

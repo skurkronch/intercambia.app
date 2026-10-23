@@ -2,45 +2,49 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
+import { createListing } from "@/app/actions";
 import { Confetti } from "@/components/Confetti";
 import { Icon } from "@/components/ds/Icon";
 import { Button, ButtonLink, Chip } from "@/components/ds/primitives";
 import { CATEGORIES, CONDITIONS } from "@/lib/data/catalog";
-import { CURRENT_USER_ID, CURRENT_USER_LOCATION } from "@/lib/data/seed";
-import { useStore } from "@/lib/store";
-import type { CategorySlug, Condition, Currency, Listing } from "@/lib/types";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { PHOTO_BUCKET } from "@/lib/supabase/env";
+import type { CategorySlug, Condition, Currency } from "@/lib/types";
 
 const MAX_PHOTOS = 6;
 const MAX_WANTS = 5;
 const SUGGESTED_WANTS = ["Vinilos", "Cámara analógica", "Sintetizador", "Bicicleta", "Consola", "Audífonos", "Libros", "Plantas"];
 const STEPS = ["Lo visual", "El estado", "Lo que quieres"];
 
-/** Downscale a photo in the browser so it fits in local storage until uploads land in phase 2. */
-async function toDataUrl(file: File, max = 900): Promise<string> {
+interface PickedPhoto {
+  blob: Blob;
+  preview: string;
+}
+
+/** Downscale and re-encode in the browser: smaller uploads and no EXIF location data. */
+async function shrink(file: File, max = 1400): Promise<PickedPhoto> {
   const bmp = await createImageBitmap(file);
   const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(bmp.width * scale);
   canvas.height = Math.round(bmp.height * scale);
   canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.78);
+  const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode"))), "image/jpeg", 0.82));
+  return { blob, preview: URL.createObjectURL(blob) };
 }
 
-function slugify(s: string) {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-
-export function Publish() {
-  const publish = useStore((s) => s.publish);
+export function Publish({ defaultPlace }: { defaultPlace: string }) {
+  const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<Listing | null>(null);
+  const [done, setDone] = useState<{ slug: string; title: string } | null>(null);
 
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<CategorySlug | null>(null);
@@ -51,15 +55,15 @@ export function Publish() {
   const [custom, setCustom] = useState("");
   const [openToAnything, setOpenToAnything] = useState(false);
   const [acceptsCash, setAcceptsCash] = useState(false);
-  const [place, setPlace] = useState("Condesa, CDMX");
+  const [place, setPlace] = useState(defaultPlace);
 
   async function addPhotos(files: FileList | null) {
     if (!files?.length) return;
     setBusy(true);
     try {
       const room = MAX_PHOTOS - photos.length;
-      const urls = await Promise.all(Array.from(files).slice(0, room).map((f) => toDataUrl(f)));
-      setPhotos((p) => [...p, ...urls]);
+      const picked = await Promise.all(Array.from(files).slice(0, room).map((f) => shrink(f)));
+      setPhotos((p) => [...p, ...picked]);
       setError(null);
     } catch {
       setError("No pudimos leer esa foto. Prueba con otra en JPG o PNG.");
@@ -95,41 +99,55 @@ export function Publish() {
     return null;
   }
 
-  function next(e: FormEvent) {
+  async function next(e: FormEvent) {
     e.preventDefault();
     const problem = validate(step);
     if (problem) return setError(problem);
     setError(null);
     if (step < 2) return setStep(step + 1);
 
-    const [neighborhood] = place.split(",").map((s) => s.trim());
-    const id = `p${Date.now().toString(36)}`;
-    const listing: Listing = {
-      id,
-      slug: `${slugify(title)}-${id}`,
-      title: title.trim(),
-      description: description.trim(),
-      category: category!,
-      condition: condition!,
-      value: value ? Number(value) : null,
-      currency,
-      photos,
-      wants: openToAnything ? [] : wants,
-      openToAnything,
-      acceptsCash,
-      hasVideo: false,
-      ownerId: CURRENT_USER_ID,
-      citySlug: "cdmx",
-      neighborhood: neighborhood || "Condesa",
-      location: CURRENT_USER_LOCATION,
-      status: "activo",
-      createdAt: new Date().toISOString(),
-    };
+    const db = supabaseBrowser();
+    if (!db) return setError("Publicar todavía no está activo en este entorno.");
+    setBusy(true);
     try {
-      publish(listing);
-      setDone(listing);
-    } catch {
-      setError("Tus fotos no caben en este dispositivo. Quita una o dos y vuelve a intentar.");
+      const { data } = await db.auth.getUser();
+      if (!data.user) return router.push("/entrar?next=/publicar");
+
+      // Photos go to <my id>/<listing id>/, the only folder storage lets me write to.
+      const id = crypto.randomUUID();
+      const paths: string[] = [];
+      for (const [i, p] of photos.entries()) {
+        const path = `${data.user.id}/${id}/${i}.jpg`;
+        const { error: upErr } = await db.storage.from(PHOTO_BUCKET).upload(path, p.blob, { contentType: "image/jpeg", upsert: false });
+        if (upErr) {
+          if (paths.length) await db.storage.from(PHOTO_BUCKET).remove(paths);
+          return setError("No pudimos subir tus fotos. Revisa tu conexión e inténtalo de nuevo.");
+        }
+        paths.push(path);
+      }
+
+      const res = await createListing({
+        id,
+        title,
+        description,
+        category: category!,
+        condition: condition!,
+        value: value ? Number(value) : null,
+        currency,
+        photos: paths,
+        wants,
+        openToAnything,
+        acceptsCash,
+        neighborhood: place.split(",")[0]?.trim() ?? "",
+      });
+      if ("error" in res) {
+        await db.storage.from(PHOTO_BUCKET).remove(paths);
+        return setError(res.error);
+      }
+      photos.forEach((p) => URL.revokeObjectURL(p.preview));
+      setDone({ slug: res.slug, title: title.trim() });
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -137,11 +155,10 @@ export function Publish() {
     return (
       <div className="publish-done">
         <Confetti />
-        <p className="overline">Publicado</p>
         <h1 className="display-lg">¡Tu objeto está en vivo!</h1>
-        <p className="publish-done-body">Ya aparece en Descubre. Te avisamos cuando alguien quiera hacer trueque por tu {done.title}.</p>
+        <p className="publish-done-body">Tu {done.title} ya aparece en Descubre para la gente cerca de ti.</p>
         <div className="publish-done-actions">
-          <ButtonLink href="/perfil" variant="spark">Ver mis publicaciones</ButtonLink>
+          <ButtonLink href={`/objeto/${done.slug}`} variant="spark">Ver publicación</ButtonLink>
           <ButtonLink href="/descubre" variant="ghost">Seguir explorando</ButtonLink>
         </div>
       </div>
@@ -170,9 +187,9 @@ export function Publish() {
         <fieldset className="publish-step-body">
           <legend className="title-lg">¿Qué vas a cambiar?</legend>
           <div className="photo-grid">
-            {photos.map((src, i) => (
+            {photos.map((p, i) => (
               <div key={i} className="photo-slot is-filled">
-                <Image src={src} alt={`Foto ${i + 1}`} fill unoptimized style={{ objectFit: "cover" }} />
+                <Image src={p.preview} alt={`Foto ${i + 1}`} fill unoptimized style={{ objectFit: "cover" }} />
                 {i === 0 && <span className="photo-cover">Portada</span>}
                 <button type="button" className="photo-remove" onClick={() => setPhotos(photos.filter((_, j) => j !== i))} aria-label={`Quitar foto ${i + 1}`}>
                   <Icon name="x" />
@@ -278,7 +295,7 @@ export function Publish() {
       )}
 
       <div className="publish-foot">
-        <Button type="submit" block disabled={busy}>{step < 2 ? "Siguiente" : "Publicar"}</Button>
+        <Button type="submit" block disabled={busy}>{step < 2 ? "Siguiente" : busy ? "Publicando…" : "Publicar"}</Button>
       </div>
     </form>
   );

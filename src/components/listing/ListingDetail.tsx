@@ -16,7 +16,7 @@ export function ListingInfo({ listing: l, owner, distance, headingLevel = 1, act
   const category = getCategory(l.category);
   const value = formatValue(l.value, l.currency);
   const Heading = headingLevel === 1 ? "h1" : "h2";
-  const material = owner ? topMaterial(owner.exchanges, owner.rating, owner.verified) : null;
+  const material = owner ? topMaterial(owner) : null;
 
   return (
     <div className="detail">
@@ -28,14 +28,9 @@ export function ListingInfo({ listing: l, owner, distance, headingLevel = 1, act
       <Heading className="detail-title">{l.title}</Heading>
       <p className="detail-place">
         <Icon name="pin" />
-        {l.location ? (
-          <>
-            {distance ? `${distance} · ` : ""}
-            {l.neighborhood}, <Link href={`/ciudad/${l.citySlug}`}>{city?.name}</Link>
-          </>
-        ) : (
-          "En línea"
-        )}
+        {distance ? `${distance} · ` : ""}
+        {l.neighborhood ? `${l.neighborhood}, ` : ""}
+        <Link href={`/ciudad/${l.citySlug}`}>{city?.name}</Link>
         {value && <span className="detail-value">Valor de referencia {value}</span>}
       </p>
 
@@ -66,7 +61,9 @@ export function ListingInfo({ listing: l, owner, distance, headingLevel = 1, act
               {owner.verified && <span className="owner-verified"><Icon name="verified" weight="fill" label="Vecino verificado" /></span>}
             </p>
             <p className="owner-card-meta">
-              <Icon name="star" weight="fill" /> {owner.rating.toFixed(1)} · {owner.exchanges} trueques · responde en {formatResponseTime(owner.avgResponseMinutes)}
+              {owner.rating !== null && <><Icon name="star" weight="fill" /> {owner.rating.toFixed(1)} · </>}
+              {owner.exchanges === 1 ? "1 trueque" : `${owner.exchanges} trueques`}
+              {owner.avgResponseMinutes !== null && ` · responde en ${formatResponseTime(owner.avgResponseMinutes)}`}
             </p>
             <p className="owner-card-bio">{owner.bio}</p>
           </div>

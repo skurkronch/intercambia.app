@@ -6,6 +6,8 @@ import { getActiveCategories, getListingsByCity } from "@/lib/repo";
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 60;
+
 export function generateStaticParams() {
   return CITIES.map((c) => ({ slug: c.slug }));
 }
@@ -27,7 +29,6 @@ export default async function CityPage({ params }: Props) {
   const [listings, categories] = await Promise.all([getListingsByCity(c.slug), getActiveCategories()]);
   return (
     <Collection
-      eyebrow={`${c.state} · ${c.country === "MX" ? "México" : "Estados Unidos"}`}
       title={`Trueque en ${c.name}`}
       intro={`${listings.length === 1 ? "1 objeto" : `${listings.length} objetos`} de vecinos de ${c.name}. Acuerden la entrega en un lugar público.`}
       listings={listings}

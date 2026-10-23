@@ -1,44 +1,44 @@
 "use client";
 
-import { useMounted, useStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { swipeListing } from "@/app/actions";
+import { useStore } from "@/lib/store";
 import type { Listing } from "@/lib/types";
 import { Button } from "../ds/primitives";
 
-/** "Lo quiero" and "Guardar" on a listing page: a Match or an interest ping. */
+/** "Lo quiero" and "Guardar" on a listing page: a Match, an interest, or a nudge to sign in. */
 export function WantActions({ listing }: { listing: Listing }) {
-  const mounted = useMounted();
-  const want = useStore((s) => s.want);
-  const save = useStore((s) => s.save);
-  const swipe = useStore((s) => s.swipe);
-  const sent = useStore((s) => s.interests.includes(listing.id));
-  const isMine = useStore((s) => s.myListings.some((m) => m.id === listing.id));
+  const router = useRouter();
+  const { showMoment, showToast } = useStore.getState();
+  const [pending, start] = useTransition();
+  const [done, setDone] = useState<"want" | "save" | "own" | null>(null);
 
-  if (mounted && isMine) {
-    return <p className="detail-note">Es tu publicación.</p>;
+  function act(action: "want" | "save") {
+    start(async () => {
+      try {
+        const r = await swipeListing(listing.id, action);
+        if (r.kind === "auth") return router.push(`/entrar?next=${encodeURIComponent(`/objeto/${listing.slug}`)}`);
+        if (r.kind === "own") return setDone("own");
+        setDone(action);
+        if (r.kind === "match") showMoment({ kind: "match", conversationId: r.conversationId, mine: r.mine, theirs: r.theirs, otherName: r.otherName });
+        else if (r.kind === "interest") showToast(r.hasOffer ? `Guardamos tu interés. Si a ${r.ownerName} le late algo tuyo, se abre el chat.` : "Sube un objeto para que pueda haber match.");
+        else if (action === "save") showToast("Guardado. Lo encuentras en tu perfil.");
+      } catch {
+        showToast("Se nos cruzaron los cables. Inténtalo de nuevo.");
+      }
+    });
   }
+
+  if (done === "own") return <p className="detail-note">Es tu publicación.</p>;
 
   return (
     <div className="want-actions">
-      <Button
-        variant="primary"
-        icon="heart"
-        onClick={() => {
-          swipe(listing.id, "want");
-          want(listing);
-        }}
-        disabled={mounted && sent}
-      >
-        {mounted && sent ? "Interés enviado" : "Lo quiero"}
+      <Button icon="heart" onClick={() => act("want")} disabled={pending || done === "want"}>
+        {done === "want" ? "Interés enviado" : "Lo quiero"}
       </Button>
-      <Button
-        variant="secondary"
-        icon="star"
-        onClick={() => {
-          swipe(listing.id, "save");
-          save(listing);
-        }}
-      >
-        Guardar
+      <Button variant="secondary" icon="bookmark" onClick={() => act("save")} disabled={pending || done === "save"}>
+        {done === "save" ? "Guardado" : "Guardar"}
       </Button>
     </div>
   );

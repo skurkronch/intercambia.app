@@ -1,7 +1,7 @@
-// Seed data for development and the pre-launch preview.
-// Replace with Supabase queries in phase 2; nothing here is real user content.
+// Phase 1 example data, kept only as the source for scripts/gen-demo-seed.mjs.
+// Run with Node (types are stripped, not checked).
 
-import type { Conversation, Listing, Review, Sponsor, TradeStats, User } from "@/lib/types";
+import type { Conversation, Listing, Review, Sponsor, TradeStats, User } from "../src/lib/types.ts";
 
 export const CURRENT_USER_ID = "cesar_trux";
 /** Approximate point for distances (Condesa, CDMX). Phase 2 takes it from the profile. */

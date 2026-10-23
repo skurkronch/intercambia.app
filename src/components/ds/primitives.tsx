@@ -47,7 +47,7 @@ export function Chip({
   return <span className={cls}>{kids}</span>;
 }
 
-const STAMP = { want: "Lo quiero", pass: "Paso", save: "Súper" } as const;
+const STAMP = { want: "Lo quiero", pass: "Paso", save: "Guardar" } as const;
 
 export function Stamp({ action, children }: { action: keyof typeof STAMP; children?: ReactNode }) {
   return <span className={`tx-stamp tx-stamp-${action}`}>{children ?? STAMP[action]}</span>;
