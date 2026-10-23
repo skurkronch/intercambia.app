@@ -53,7 +53,6 @@ export function Moments() {
         <div className="overlay overlay-badge" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
           <Confetti />
           <div className="unlock">
-            <p className="overline unlock-eyebrow">{badges.length > 1 ? "Insignias nuevas" : "Insignia nueva"}</p>
             {badges.map((b, i) => (
               <div key={b.id} className="unlock-item">
                 <span className="unlock-coin"><Coin material={b.material} icon={b.icon} isNew /></span>

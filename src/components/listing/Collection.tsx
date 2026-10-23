@@ -5,14 +5,13 @@ import { ListingGrid } from "./ListingTile";
 import type { Listing } from "@/lib/types";
 
 /** A browsable, indexable list page: heading, intro, related links and the grid. */
-export function Collection({ eyebrow, title, intro, listings, related }: {
-  eyebrow: string; title: string; intro: ReactNode; listings: Listing[];
+export function Collection({ title, intro, listings, related }: {
+  title: string; intro: ReactNode; listings: Listing[];
   related: { href: string; label: string; icon?: Parameters<typeof Chip>[0]["icon"] }[];
 }) {
   return (
     <div className="page">
       <header className="page-head">
-        <p className="overline">{eyebrow}</p>
         <h1 className="title-lg">{title}</h1>
         <p className="page-intro">{intro}</p>
       </header>

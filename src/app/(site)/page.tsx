@@ -38,7 +38,6 @@ export default async function HomePage() {
 
       <section className="hero site-wrap">
         <div className="hero-copy">
-          <p className="overline hero-eyebrow">Trueque entre vecinos · México y EE. UU.</p>
           <h1 className="hero-title">
             Cambia lo que tienes por lo que <span className="hero-x">quieres</span>.
           </h1>

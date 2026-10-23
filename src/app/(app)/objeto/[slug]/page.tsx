@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdSlot } from "@/components/AdSlot";
 import { Icon } from "@/components/ds/Icon";
-import { Photo } from "@/components/ds/Photo";
+import { Gallery } from "@/components/ds/Gallery";
 import { ListingInfo } from "@/components/listing/ListingDetail";
 import { ListingGrid } from "@/components/listing/ListingTile";
 import { WantActions } from "@/components/listing/WantActions";
@@ -61,7 +61,7 @@ export default async function ListingPage({ params }: Props) {
 
       <div className="listing-layout">
         <div className="listing-media">
-          <Photo src={listing.photos[0]} alt={listing.title} category={listing.category} priority sizes="(max-width: 900px) 100vw, 560px" />
+          <Gallery photos={listing.photos} alt={listing.title} category={listing.category} priority sizes="(max-width: 900px) 100vw, 560px" />
         </div>
         <div className="listing-main">
           <ListingInfo listing={listing} owner={owner} actions={<WantActions listing={listing} />} />

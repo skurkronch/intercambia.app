@@ -20,11 +20,12 @@ Sin variables de Supabase la app compila y corre, pero vacía y sin cuentas.
 ## Conectar Supabase (una vez por proyecto)
 
 1. **Base de datos.** En el SQL Editor de Supabase corre `supabase/migrations/20261023000000_init.sql` completo. Crea tablas, reglas de seguridad, el bucket de fotos y las funciones de match y trueque.
-2. **Contenido de ejemplo (solo staging).** Si quieres objetos para probar, corre `supabase/seed-demo.sql`. Son 20 objetos de cuentas que no pueden entrar. **Nunca en producción.**
+2. **Contenido de ejemplo (solo staging).** Si quieres objetos para probar, corre `supabase/seed-demo.sql`. Son 20 objetos de cuentas que no pueden entrar; sus fotos están en `public/demo/` (ver `public/demo/LEEME.md`). **Nunca en producción.**
 3. **Auth → URL Configuration.** *Site URL*: la URL de producción. *Redirect URLs*: `http://localhost:3000/auth/callback`, `https://<tu-proyecto>.vercel.app/auth/callback` y `https://truxange.com/auth/callback`.
-4. **Auth → Providers → Google** (opcional). Requiere un cliente OAuth de Google Cloud. Sin esto, se entra con enlace mágico al correo.
-5. **Correo.** El correo integrado de Supabase permite pocos envíos por hora. Antes de lanzar, configura SMTP propio (Auth → SMTP Settings), por ejemplo con Resend.
-6. **Vercel.** En Settings → Environment Variables agrega `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`, y vuelve a desplegar.
+4. **Auth → Emails.** Pega `supabase/email-templates/entrar.html` en las plantillas *Magic link* y *Confirm signup*. El enlace usa `/auth/confirm` con token hash (funciona aunque el correo se abra en otro navegador) e incluye un código de 6 dígitos.
+5. **Auth → Providers → Google** (opcional). Requiere un cliente OAuth de Google Cloud. Sin esto, se entra con enlace mágico al correo.
+6. **Correo.** El correo integrado de Supabase permite pocos envíos por hora. Antes de lanzar, configura SMTP propio (Auth → SMTP Settings), por ejemplo con Resend.
+7. **Vercel.** En Settings → Environment Variables agrega `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`, y vuelve a desplegar.
 
 ## Estructura
 
@@ -33,7 +34,7 @@ Sin variables de Supabase la app compila y corre, pero vacía y sin cuentas.
 | `/` | Portada | Público, indexable |
 | `/buscar` | Búsqueda con filtros por categoría | Público |
 | `/objeto/[slug]`, `/categoria/[slug]`, `/ciudad/[slug]` | Páginas para SEO, regeneradas cada minuto | Público, indexable |
-| `/entrar`, `/auth/callback` | Enlace mágico y Google | Público |
+| `/entrar`, `/auth/confirm`, `/auth/callback` | Enlace o código por correo, y Google | Público |
 | `/bienvenida` | Completar perfil la primera vez | Con cuenta |
 | `/descubre` | Stack de swipe | Con cuenta |
 | `/publicar` | Asistente de 3 pasos con fotos | Con cuenta |

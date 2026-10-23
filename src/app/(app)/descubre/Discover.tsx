@@ -6,6 +6,7 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import { resetPasses, swipeListing, undoSwipe, type SwipeResult } from "@/app/actions";
 import { Icon } from "@/components/ds/Icon";
 import type { DeckItem } from "@/components/ds/ItemCard";
+import { Gallery } from "@/components/ds/Gallery";
 import { Photo } from "@/components/ds/Photo";
 import { SwipeDeck, type DeckHandle } from "@/components/ds/SwipeDeck";
 import { XLoader, XMark } from "@/components/ds/XMark";
@@ -229,7 +230,7 @@ export function Discover({ listings, owners, sponsors, wishlist, myListings, her
         {open && (
           <>
             <div className="sheet-photo">
-              <Photo src={open.listing.photos[0]} alt={open.listing.title} category={open.listing.category} />
+              <Gallery photos={open.listing.photos} alt={open.listing.title} category={open.listing.category} />
             </div>
             <ListingInfo listing={open.listing} owner={open.owner} distance={open.distance} headingLevel={2} />
             <Link href={`/objeto/${open.listing.slug}`} className="link-more">Abrir página del objeto <Icon name="next" /></Link>

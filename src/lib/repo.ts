@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
 import { CATEGORIES, CITIES, getCity } from "@/lib/data/catalog";
+import DEMO_PHOTOS from "@/lib/data/demo-photos.json";
 import { normalize } from "@/lib/match";
 import { photoUrl } from "@/lib/supabase/env";
 import { supabasePublic, supabaseServer } from "@/lib/supabase/server";
@@ -35,11 +36,15 @@ interface MatchRow {
   status: Conversation["status"]; confirmed_a: boolean; confirmed_b: boolean; created_at: string;
 }
 
+const demoPhotos: Record<string, string[]> = DEMO_PHOTOS;
+
 export function toListing(r: ListingRow): Listing {
+  const uploaded = r.photos.map(photoUrl).filter((u): u is string => !!u);
   return {
     id: r.id, slug: r.slug, title: r.title, description: r.description, category: r.category, condition: r.condition,
     value: r.value, currency: r.currency,
-    photos: r.photos.map(photoUrl).filter((u): u is string => !!u),
+    // Demo listings have no uploads; their test photos live in public/demo/ (npm run db:demo-photos).
+    photos: uploaded.length ? uploaded : demoPhotos[r.slug] ?? [],
     wants: r.wants, openToAnything: r.open_to_anything, acceptsCash: r.accepts_cash, hasVideo: r.has_video,
     ownerId: r.owner_id, citySlug: r.city_slug, neighborhood: r.neighborhood,
     location: r.lat !== null && r.lng !== null ? { lat: r.lat, lng: r.lng } : null,

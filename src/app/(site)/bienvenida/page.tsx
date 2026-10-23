@@ -16,7 +16,6 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
   return (
     <div className="site-wrap auth-page">
       <div className="auth-card auth-card-wide">
-        <p className="overline">Bienvenida a truXanger</p>
         <h1 className="title-lg">Cuéntanos de ti</h1>
         <p className="page-intro">Con esto calculamos distancias y te mostramos primero lo que buscas.</p>
         <Welcome

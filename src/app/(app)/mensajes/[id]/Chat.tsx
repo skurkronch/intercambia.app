@@ -197,7 +197,6 @@ export function Chat({ conversation: c, initialMessages, meId, reviewed: initial
         footer={<Button block disabled={!stars || pending} onClick={onRate}>Enviar calificación</Button>}
       >
         <div className="rate">
-          <p className="overline">¡Trueque cerrado!</p>
           <h2 className="title-lg">¿Cómo te fue con {name}?</h2>
           <div className="stars" role="radiogroup" aria-label="Calificación">
             {[1, 2, 3, 4, 5].map((n) => (

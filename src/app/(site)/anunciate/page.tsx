@@ -12,7 +12,6 @@ export default function AdvertisePage() {
   return (
     <div className="site-wrap advertise">
       <div className="advertise-copy">
-        <p className="overline">Anúnciate</p>
         <h1 className="title-lg">Tu marca frente a vecinos que intercambian</h1>
         <p className="page-intro">
           Quien hace trueque ya está pensando en lo siguiente: afinar la bici que acaba de cambiar, comprar macetas para su nueva monstera o un estuche para su guitarra. Llega justo ahí.

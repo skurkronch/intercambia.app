@@ -6,6 +6,15 @@ import { PROTECTED_PATHS, SUPABASE_KEY, SUPABASE_URL, supabaseConfigured } from 
 export async function proxy(request: NextRequest) {
   if (!supabaseConfigured) return NextResponse.next();
 
+  // If Supabase falls back to the Site URL, the sign-in code lands on "/": finish it in the callback.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
+  if (request.nextUrl.pathname === "/") return NextResponse.next();
+
   let response = NextResponse.next({ request });
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_KEY, {
     cookies: {
@@ -30,5 +39,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/descubre/:path*", "/publicar/:path*", "/mensajes/:path*", "/perfil/:path*", "/bienvenida/:path*", "/entrar", "/auth/:path*"],
+  matcher: ["/", "/descubre/:path*", "/publicar/:path*", "/mensajes/:path*", "/perfil/:path*", "/bienvenida/:path*", "/entrar", "/auth/:path*"],
 };

@@ -29,7 +29,6 @@ export default async function CategoryPage({ params }: Props) {
   const [listings, cities] = await Promise.all([getListingsByCategory(c.slug), getActiveCities()]);
   return (
     <Collection
-      eyebrow="Categoría"
       title={`Trueque de ${c.plural}`}
       intro={`${listings.length === 1 ? "1 objeto disponible" : `${listings.length} objetos disponibles`} para cambiar. Toca uno para ver qué busca su dueño a cambio.`}
       listings={listings}

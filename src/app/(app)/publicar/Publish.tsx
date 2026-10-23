@@ -155,7 +155,6 @@ export function Publish({ defaultPlace }: { defaultPlace: string }) {
     return (
       <div className="publish-done">
         <Confetti />
-        <p className="overline">Publicado</p>
         <h1 className="display-lg">¡Tu objeto está en vivo!</h1>
         <p className="publish-done-body">Tu {done.title} ya aparece en Descubre para la gente cerca de ti.</p>
         <div className="publish-done-actions">
