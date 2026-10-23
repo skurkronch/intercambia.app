@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMounted, useStore } from "@/lib/store";
+import { useUnreadCount } from "@/lib/unread";
 import { Icon, type IconName } from "../ds/Icon";
 import { Wordmark, XMark } from "../ds/XMark";
 
@@ -14,11 +14,7 @@ const ITEMS: { href: string; label: string; icon: IconName; primary?: boolean }[
   { href: "/perfil", label: "Perfil", icon: "user" },
 ];
 
-function useUnread() {
-  const mounted = useMounted();
-  const unread = useStore((s) => s.conversations.reduce((n, c) => n + c.unread, 0));
-  return mounted ? unread : 0;
-}
+const useUnread = useUnreadCount;
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);

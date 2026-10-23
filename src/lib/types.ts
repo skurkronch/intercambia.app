@@ -1,5 +1,5 @@
-// Domain types. They mirror the Supabase schema planned for phase 2,
-// so swapping the seed data for real queries doesn't touch the UI.
+// Domain types the UI works with. src/lib/repo.ts maps database rows
+// (supabase/migrations) to these.
 
 export type CategorySlug =
   | "electronica"
@@ -15,7 +15,7 @@ export type CategorySlug =
 
 export type Condition = "nuevo" | "como-nuevo" | "buen-estado" | "usado" | "para-reparar";
 
-export type ListingStatus = "activo" | "en-negociacion" | "intercambiado";
+export type ListingStatus = "activo" | "en-negociacion" | "intercambiado" | "pausado";
 
 export type Currency = "MXN" | "USD";
 
@@ -49,12 +49,15 @@ export interface User {
   citySlug: string;
   neighborhood: string;
   bio: string;
-  rating: number;
+  /** Average stars; null until the first review. */
+  rating: number | null;
   reviewsCount: number;
   exchanges: number;
-  avgResponseMinutes: number;
+  avgResponseMinutes: number | null;
   verified: boolean;
   memberSince: string;
+  wants: string[];
+  location: GeoPoint | null;
 }
 
 export interface Listing {
@@ -94,34 +97,37 @@ export interface Sponsor {
 
 export interface Review {
   id: string;
-  authorId: string;
-  targetId: string;
+  authorName: string;
   stars: number;
   text: string;
   createdAt: string;
 }
 
-export type MessageFrom = "me" | "them" | "system";
-
 export interface Message {
-  id: string;
-  from: MessageFrom;
-  text: string;
-  at: string;
+  id: number;
+  /** Null for system messages. */
+  senderId: string | null;
+  kind: "text" | "system";
+  body: string;
+  createdAt: string;
+  readAt: string | null;
 }
 
-export type TradeState = "negociando" | "confirmado-por-mi" | "cerrado" | "calificado";
+export type TradeStatus = "negociando" | "cerrado" | "cancelado";
 
+/** A match seen from the signed-in person's side. */
 export interface Conversation {
   id: string;
-  otherUserId: string;
-  /** Their listing that started the match. */
-  theirListingId: string;
-  /** My listing offered in exchange, when there is one. */
-  myListingId: string | null;
-  messages: Message[];
+  other: User;
+  /** Their listing, the one that started the match. */
+  theirs: Listing | null;
+  /** What I offered. */
+  mine: Listing | null;
+  status: TradeStatus;
+  confirmedByMe: boolean;
+  confirmedByOther: boolean;
+  lastMessage: Message | null;
   unread: number;
-  trade: TradeState;
 }
 
 /** The signed-in person's exchange history, the input to badge rules. */
@@ -129,7 +135,8 @@ export interface TradeStats {
   exchanges: number;
   rating: number;
   reviewsCount: number;
-  avgResponseMinutes: number;
+  /** Null until they have answered a proposal. */
+  avgResponseMinutes: number | null;
   countries: Country[];
   byCategory: Partial<Record<CategorySlug, number>>;
   verified: boolean;

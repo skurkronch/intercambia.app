@@ -48,7 +48,7 @@ export const BADGES: BadgeDef[] = [
   { id: "mercader", name: "El Mercader", material: "gold", icon: "storefront", progress: count(50), unit: "trueques", earnedTip: "50 trueques cerrados." },
   { id: "rey", name: "Rey del Swap", material: "crystal", icon: "crown", progress: count(100), unit: "trueques", earnedTip: "100 trueques cerrados. Leyenda del barrio." },
   { id: "respuesta_rapida", name: "Respuesta Rápida", material: "silver", icon: "lightning",
-    progress: (s) => ({ current: s.avgResponseMinutes <= 60 ? 1 : 0, total: 1 }), unit: "", earnedTip: "Respondes en menos de una hora en promedio." },
+    progress: (s) => ({ current: s.avgResponseMinutes !== null && s.avgResponseMinutes <= 60 ? 1 : 0, total: 1 }), unit: "", earnedTip: "Respondes en menos de una hora en promedio." },
   { id: "cinco_estrellas", name: "5 Estrellas", material: "gold", icon: "star",
     progress: (s) => ({ current: s.rating >= 5 ? Math.min(s.reviewsCount, 10) : 0, total: 10 }), unit: "reseñas de 5.0", earnedTip: "Calificación perfecta con 10 reseñas o más." },
   { id: "poliglota", name: "Políglota del Trueque", material: "gold", icon: "globe",
@@ -95,9 +95,9 @@ export function newlyEarned(before: TradeStats, after: TradeStats): BadgeStatus[
 const RANK: Record<BadgeMaterial, number> = { bronze: 1, silver: 2, gold: 3, crystal: 4 };
 
 /** The highest material a user has, for the small badge next to their name. */
-export function topMaterial(exchanges: number, rating: number, verified: boolean): BadgeMaterial | null {
+export function topMaterial({ exchanges, rating, reviewsCount, verified }: { exchanges: number; rating: number | null; reviewsCount: number; verified: boolean }): BadgeMaterial | null {
   if (exchanges >= 100) return "crystal";
-  if (exchanges >= 50 || rating >= 5) return "gold";
+  if (exchanges >= 50 || (rating !== null && rating >= 5 && reviewsCount >= 10)) return "gold";
   if (exchanges >= 10 || verified) return "silver";
   if (exchanges >= 1) return "bronze";
   return null;

@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { BADGES } from "@/lib/badges";
 import { useStore } from "@/lib/store";
-import { lookup } from "@/lib/repo";
 import { Coin } from "./ds/Badge";
 import { MatchScreen } from "./ds/MatchScreen";
 import { Button } from "./ds/primitives";
@@ -15,7 +15,6 @@ export function Moments() {
   const moment = useStore((s) => s.moment);
   const toast = useStore((s) => s.toast);
   const dismiss = useStore((s) => s.dismissMoment);
-  const startConversation = useStore((s) => s.startConversation);
   const showToast = useStore((s) => s.showToast);
 
   useEffect(() => {
@@ -31,34 +30,35 @@ export function Moments() {
     return () => window.removeEventListener("keydown", onKey);
   }, [moment, dismiss]);
 
+  const badges = moment?.kind === "badges" ? BADGES.filter((b) => moment.ids.includes(b.id)) : [];
+
   return (
     <>
       {moment?.kind === "match" && (
         <div className="overlay overlay-match">
           <MatchScreen
-            mine={moment.match.mine}
-            theirs={moment.match.theirs}
-            otherName={lookup.user(moment.match.theirs.ownerId)?.displayName ?? "la otra persona"}
+            mine={moment.mine}
+            theirs={moment.theirs}
+            otherName={moment.otherName}
             onChat={() => {
-              const id = startConversation(moment.match);
               dismiss();
-              router.push(`/mensajes/${id}`);
+              router.push(`/mensajes/${moment.conversationId}`);
             }}
             onClose={dismiss}
           />
         </div>
       )}
 
-      {moment?.kind === "badges" && (
+      {badges.length > 0 && (
         <div className="overlay overlay-badge" role="dialog" aria-modal="true" aria-labelledby="unlock-title">
           <Confetti />
           <div className="unlock">
-            <p className="overline unlock-eyebrow">Insignia nueva</p>
-            {moment.badges.map((b) => (
-              <div key={b.def.id} className="unlock-item">
-                <span className="unlock-coin"><Coin material={b.def.material} icon={b.def.icon} isNew /></span>
-                <h2 className="unlock-name" id="unlock-title">{b.def.name}</h2>
-                <p className="unlock-tip">{b.def.earnedTip}</p>
+            <p className="overline unlock-eyebrow">{badges.length > 1 ? "Insignias nuevas" : "Insignia nueva"}</p>
+            {badges.map((b, i) => (
+              <div key={b.id} className="unlock-item">
+                <span className="unlock-coin"><Coin material={b.material} icon={b.icon} isNew /></span>
+                <h2 className="unlock-name" id={i === 0 ? "unlock-title" : undefined}>{b.name}</h2>
+                <p className="unlock-tip">{b.earnedTip}</p>
               </div>
             ))}
             <div className="unlock-actions">

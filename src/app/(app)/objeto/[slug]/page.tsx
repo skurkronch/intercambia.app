@@ -13,6 +13,8 @@ import { SITE_URL } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   return (await getAllListingSlugs()).map((slug) => ({ slug }));
 }

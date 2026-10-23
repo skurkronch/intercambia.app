@@ -53,7 +53,7 @@ export function ItemCard({ item, top, withStamps, style, cardRef, handlers }: Ca
 
 function ListingFace({ item, top }: { item: Extract<DeckItem, { kind: "listing" }>; top?: boolean }) {
   const { listing: l, owner, distance } = item;
-  const material = owner ? topMaterial(owner.exchanges, owner.rating, owner.verified) : null;
+  const material = owner ? topMaterial(owner) : null;
   return (
     <>
       <Photo src={l.photos[0]} alt={l.title} category={l.category} priority={top} />
@@ -65,10 +65,10 @@ function ListingFace({ item, top }: { item: Extract<DeckItem, { kind: "listing" 
       <div className="tx-card-body">
         <div className="tx-card-row">
           <Chip tone="photo">{conditionLabel(l.condition)}</Chip>
-          {distance && (
+          {(distance || l.neighborhood) && (
             <span className="tx-meta">
               <Icon name="pin" />
-              {distance} · {l.neighborhood}
+              {[distance, l.neighborhood].filter(Boolean).join(" · ")}
             </span>
           )}
         </div>
@@ -79,7 +79,7 @@ function ListingFace({ item, top }: { item: Extract<DeckItem, { kind: "listing" 
             <span className="tx-owner-name">{owner.displayName}</span>
             {material && <Coin material={material} icon="handshake" small label={`Insignia de ${material}`} />}
             <span className="tx-owner-rating">
-              <Icon name="star" weight="fill" /> {owner.rating.toFixed(1)}
+              {owner.rating !== null ? <><Icon name="star" weight="fill" /> {owner.rating.toFixed(1)}</> : "Nuevo"}
             </span>
           </div>
         )}

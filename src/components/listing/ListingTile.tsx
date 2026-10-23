@@ -20,7 +20,7 @@ export function ListingTile({ listing: l, priority }: { listing: Listing; priori
       <div className="tile-body">
         <h3 className="tile-title">{l.title}</h3>
         <p className="tile-meta">
-          <Icon name="pin" /> {l.location ? `${l.neighborhood}, ${city?.short ?? ""}` : "En línea"}
+          <Icon name="pin" /> {[l.neighborhood, city?.short].filter(Boolean).join(", ")}
         </p>
         <p className="tile-foot">
           <span className="tile-cat">{getCategory(l.category)?.name}</span>

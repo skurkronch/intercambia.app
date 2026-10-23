@@ -4,15 +4,23 @@ import { Coin } from "@/components/ds/Badge";
 import { Icon } from "@/components/ds/Icon";
 import { ItemCard } from "@/components/ds/ItemCard";
 import { ButtonLink, Chip } from "@/components/ds/primitives";
+import { XMark } from "@/components/ds/XMark";
+import { CATEGORIES, CITIES } from "@/lib/data/catalog";
 import { ListingGrid } from "@/components/listing/ListingTile";
-import { getActiveCategories, getActiveCities, getRecentListings, getUser } from "@/lib/repo";
+import { getActiveCategories, getActiveCities, getRecentListings, getUsers } from "@/lib/repo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
+// Regenerated at most once a minute with the newest listings.
+export const revalidate = 60;
+
 export default async function HomePage() {
-  const [recent, categories, cities] = await Promise.all([getRecentListings(8), getActiveCategories(), getActiveCities()]);
-  const hero = await Promise.all(
-    recent.slice(0, 3).map(async (l) => ({ kind: "listing" as const, key: l.id, listing: l, owner: await getUser(l.ownerId), distance: "" })),
-  );
+  const [recent, activeCategories, activeCities] = await Promise.all([getRecentListings(8), getActiveCategories(), getActiveCities()]);
+  // Before there are listings, link every category and city so the page is never a dead end.
+  const categories = activeCategories.length ? activeCategories : CATEGORIES;
+  const cities = activeCities.length ? activeCities : CITIES;
+  const heroListings = recent.slice(0, 3);
+  const owners = new Map((await getUsers(heroListings.map((l) => l.ownerId))).map((u) => [u.id, u]));
+  const hero = heroListings.map((l) => ({ kind: "listing" as const, key: l.id, listing: l, owner: owners.get(l.ownerId), distance: "" }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -42,13 +50,19 @@ export default async function HomePage() {
             <ButtonLink href="/buscar" variant="secondary">Explorar objetos</ButtonLink>
           </div>
         </div>
-        <div className="hero-art" aria-hidden="true">
-          {hero.map((item, i) => (
-            <div key={item.key} className={`hero-card hero-card-${i}`}>
-              <ItemCard item={item} top={i === 2} />
-            </div>
-          ))}
-        </div>
+        {hero.length === 3 ? (
+          <div className="hero-art" aria-hidden="true">
+            {hero.map((item, i) => (
+              <div key={item.key} className={`hero-card hero-card-${i}`}>
+                <ItemCard item={item} top={i === 2} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="hero-art hero-art-mark" aria-hidden="true">
+            <XMark size={240} />
+          </div>
+        )}
       </section>
 
       <section className="band" id="como-funciona" aria-labelledby="how-title">
@@ -74,13 +88,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="site-wrap section" aria-labelledby="recent-title">
-        <div className="section-head">
-          <h2 className="title-lg" id="recent-title">Recién publicados</h2>
-          <Link href="/buscar" className="link-more">Ver todo <Icon name="next" /></Link>
-        </div>
-        <ListingGrid listings={recent} />
-      </section>
+      {recent.length > 0 && (
+        <section className="site-wrap section" aria-labelledby="recent-title">
+          <div className="section-head">
+            <h2 className="title-lg" id="recent-title">Recién publicados</h2>
+            <Link href="/buscar" className="link-more">Ver todo <Icon name="next" /></Link>
+          </div>
+          <ListingGrid listings={recent} />
+        </section>
+      )}
 
       <div className="site-wrap">
         <AdSlot placement="home-mid" />

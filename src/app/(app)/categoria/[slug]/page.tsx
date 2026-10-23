@@ -6,6 +6,8 @@ import { getActiveCities, getListingsByCategory } from "@/lib/repo";
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 60;
+
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }));
 }

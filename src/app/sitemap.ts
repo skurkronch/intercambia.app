@@ -3,6 +3,8 @@ import { CATEGORIES, CITIES } from "@/lib/data/catalog";
 import { getRecentListings } from "@/lib/repo";
 import { SITE_URL } from "@/lib/site";
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const listings = await getRecentListings(5000);
   return [

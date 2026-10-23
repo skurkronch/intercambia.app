@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ItemCard } from "@/components/ds/ItemCard";
-import { SPONSORS } from "@/lib/data/seed";
+import { SPONSORS } from "@/lib/sponsors";
 
 export const metadata: Metadata = {
   title: "Anúnciate",

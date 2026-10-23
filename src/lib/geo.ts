@@ -9,10 +9,9 @@ export function distanceKm(a: GeoPoint, b: GeoPoint): number {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-/** "A 800 m", "A 3 km", "A 412 km". Null location means an online service. */
+/** "A 800 m", "A 3 km", "A 412 km"; empty when either point is unknown. */
 export function formatDistance(from: GeoPoint | null, to: GeoPoint | null): string {
-  if (!to) return "En línea";
-  if (!from) return "";
+  if (!from || !to) return "";
   const km = distanceKm(from, to);
   if (km < 1) return `A ${Math.max(100, Math.round((km * 1000) / 50) * 50)} m`;
   if (km < 10) return `A ${km.toFixed(1).replace(/\.0$/, "")} km`;
